@@ -16,14 +16,15 @@ def main(
     output_path: Path = PROCESSED_DATA_DIR / "dataset.csv",
     # ----------------------------------------------
 ):
-    # ---- REPLACE THIS WITH YOUR OWN CODE ----
     logger.info("Processing dataset...")
+    # ---- REPLACE THIS WITH YOUR OWN CODE ----
+    
     for i in tqdm(range(10), total=10):
         if i == 5:
             logger.info("Something happened for iteration 5.")
-    logger.success("Processing dataset complete.")
+    
     # -----------------------------------------
-
+    logger.success("Processing dataset complete.")
 
 if __name__ == "__main__":
     app()
