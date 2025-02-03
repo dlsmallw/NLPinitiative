@@ -15,9 +15,6 @@ PYTHON_INTERPRETER = python
 .PHONY: requirements
 requirements:
 	pipenv install
-	
-
-
 
 ## Delete all compiled Python files
 .PHONY: clean
@@ -37,21 +34,19 @@ lint:
 format:
 	black --config pyproject.toml nlpinitiative
 
-
-
-
 ## Set up python interpreter environment
 .PHONY: create_environment
 create_environment:
 	pipenv --python $(PYTHON_VERSION)
-	@echo ">>> New pipenv created. Activate with:\npipenv shell"
-	
-
-
+	@echo ">>> New pipenv created. Activate with: pipenv shell"
 
 #################################################################################
 # PROJECT RULES                                                                 #
 #################################################################################
+## Import Raw Data from source
+.PHONY: data_import
+data_import: requirements
+	$(PYTHON_INTERPRETER) nlpinitiative/data_preparation/data_import.py $(FLAG_ARG) $(FILEPATH_ARG)
 
 
 ## Make Dataset
