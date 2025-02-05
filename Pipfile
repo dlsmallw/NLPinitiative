@@ -16,6 +16,11 @@ scikit-learn = "*"
 tqdm = "*"
 typer = "*"
 "nlpinitiative" ={editable = true, path = "."}
+tokenizers = "*"
+datasets = "*"
+transformers = "*"
 
 [requires]
 python_version = "3.12"
+
+[dev-packages]

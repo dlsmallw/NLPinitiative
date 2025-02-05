@@ -19,8 +19,8 @@ def valid_url_scheme(url):
 def gen_import_filename(url: str):
     def github():
         parsed = urlparse(url)
-        path = parsed.path
-        path_arr = path.split('/')[1:]
+        path = os.path.splitext(parsed.path)[0][1:]
+        path_arr = path.split('/')
         return '_'.join([path_arr[0], path_arr[1], path_arr[-1]])
 
     if 'github' in url:
@@ -116,7 +116,7 @@ def store_data(data_df: pd.DataFrame, filename: str, destpath):
     corrected_filename = f'{filename}.csv'
     while os.path.exists(os.path.join(destpath, corrected_filename)):
         appended_num += 1
-        corrected_filename = f'{filename}-{appended_num}'
+        corrected_filename = f'{filename}-{appended_num}.csv'
     data_df.to_csv(os.path.join(destpath, corrected_filename))
 
 @app.command()
@@ -126,16 +126,19 @@ def main(
         third_party_source: Optional[Annotated[str, typer.Option("--third-party", "-tp")]] = False
     ):
 
-    if local or external:
-        if local:
-            logger.info("Import from local source")
-            df = import_from_local_source(local, third_party_source)
+    try:
+        if local or external:
+            if local:
+                logger.info("Import from local source")
+                df = import_from_local_source(local, third_party_source)
+            else:
+                logger.info("Import from external source")
+                df = import_from_ext_source(external)
         else:
-            logger.info("Import from external source")
-            df = import_from_ext_source(external)
-    else:
-        logger.error("No source specified")
-    return df
+            logger.error("No source specified")
+        return df
+    except Exception as e:
+        logger.error(e)
 
 if __name__ == "__main__":
     app()

@@ -17,9 +17,21 @@ PROCESSED_DATA_DIR = DATA_DIR / "processed"
 EXTERNAL_DATA_DIR = DATA_DIR / "external"
 
 MODELS_DIR = PROJ_ROOT / "models"
+TOKENIZERS_DIR = PROJ_ROOT / "nlpinitiative" / "data_preparation" / "tokenizers"
 
 REPORTS_DIR = PROJ_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
+
+# tokenizer config
+SPECIAL_TOKENS = ["[UNK]", "[PAD]", "[CLS]", "[SEP]", "[MASK]"]
+GENERATOR_BATCH_SIZE = 1000
+
+# Model defaults
+DEF_MODEL = "bert-base-uncased"
+
+# dataset structure
+BINARY_LABELS = ["DISCRIMINATORY", "NEUTRAL"]
+SECOND_TASK_LABELS = ["GENDER", "RACE", "DISABILITY", "RELIGION"]
 
 # If tqdm is installed, configure loguru with tqdm.write
 # https://github.com/Delgan/loguru/issues/135
