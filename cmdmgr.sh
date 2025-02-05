@@ -2,8 +2,6 @@
 
 build() {
     make create_environment
-    pipenv run
-    make requirements
 }
 
 data_import() {

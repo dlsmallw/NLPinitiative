@@ -38,7 +38,6 @@ format:
 .PHONY: create_environment
 create_environment:
 	pipenv --python $(PYTHON_VERSION)
-	@echo ">>> New pipenv created. Activate with: pipenv shell"
 
 #################################################################################
 # PROJECT RULES                                                                 #
