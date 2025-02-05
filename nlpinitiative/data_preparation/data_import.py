@@ -1,9 +1,10 @@
-from typing_extensions import Annotated
+from typing_extensions import Annotated, Optional
 from loguru import logger
 from urllib.parse import urlparse
-import os, shutil, requests, typer
+import os, typer
+import pandas as pd
 
-from nlpinitiative.config import PROCESSED_DATA_DIR, RAW_DATA_DIR
+from nlpinitiative.config import EXTERNAL_DATA_DIR, RAW_DATA_DIR
 
 app = typer.Typer()
 accepted_formats = ['.csv', '.xlsx', '.json']
@@ -47,77 +48,94 @@ def format_url(url: str):
         return formatted_url
     else:
         return url
+    
 
-def import_from_local_source(filepath):
-    if filepath:
-        if not os.path.exists(filepath):
-            return "Error", "Invalid filepath"
-        else:
-            extension = os.path.splitext(filepath)[-1].lower()
-            if extension in accepted_formats:
-                try:
-                    shutil.copy(filepath, RAW_DATA_DIR)
-                except Exception as e:
-                    return "Error", f"Failed to import from local source - {e}"
-                return "Success", f"File {filepath} imported into Raw Data folder, {RAW_DATA_DIR}"
-            else:
-                return "Error", "Unsupported file type"
-    else:
-        return "Error", "Filepath not provided"
+def srcdata_to_df(source: str, ext: str) -> pd.DataFrame:
+    try:
+        match ext:
+            case '.csv':
+                df = pd.read_csv(source)
+            case '.xlsx':
+                df = pd.read_excel(source)
+            case '.json':
+                df = pd.read_json(source)
+            case _:
+                df = None
+        return df
+    except Exception as e:
+        raise Exception(f"Failed to import from source - {e}")
+
+def import_from_local_source(filepath, tp_src=False) -> pd.DataFrame:
+    if filepath is None or filepath == '':
+        raise Exception("Filepath not provided")
+    if not os.path.exists(filepath):
+        raise Exception(f"Invalid filepath, {filepath}")
+    
+    destpath = EXTERNAL_DATA_DIR if tp_src else RAW_DATA_DIR
+    filename, ext = os.path.splitext(filepath)[-2:].lower()
+    if ext not in accepted_formats:
+        raise Exception("Unsupported file type")
+    
+    df = srcdata_to_df(filepath, ext)
+
+    if df is None:
+        raise Exception("Failed to import from local source")
+    
+    logger.success(f"Data from file, {filepath}, imported")
+    store_data(df, filename, destpath)
+    return df
+        
         
 def import_from_ext_source(ext_src):
-    if valid_url_scheme(ext_src):
+    if not valid_url_scheme(ext_src):
+        raise Exception("Filepath not provided")
         
-        url = format_url(ext_src)
-        path = urlparse(url).path
-        ext = os.path.splitext(path)[1]
-        logger.info(f"File type identified, '{ext}'")
+    url = format_url(ext_src)
+    path = urlparse(url).path
+    ext = os.path.splitext(path)[1]
+    logger.info(f"File type identified, '{ext}'")
 
-        if ext in accepted_formats:
-            new_filename = gen_import_filename(ext_src)
-            output_path = RAW_DATA_DIR / new_filename
-            logger.info(f"Output filename, {new_filename}, generated")
-            print(RAW_DATA_DIR)
+    if ext not in accepted_formats:
+        raise Exception("Unsupported file type")
+    
+    new_filename = gen_import_filename(ext_src)
+    destpath = EXTERNAL_DATA_DIR
 
-            if not os.path.exists(output_path):
-                response = requests.get(url)
-                if response.status_code != 200:
-                    return "Error", f"Failed to fetch data from {url}"
-                content = response.content
+    df = srcdata_to_df(url, ext)
 
-                try:
-                    with open(output_path, 'wb') as file:
-                        file.write(content)
-                        file.close()
-                    return "Success", f"Successfully imported the dataset from, {ext_src}"
-                except Exception as e:
-                    if os.path.exists(output_path):
-                        os.remove(output_path)
-                    return "Error", f"Failed to write to file, {e}"
-            else:
-                return "Error", f"File of name {new_filename}, already exists"
+    if df is None:
+        raise Exception('Failed to extract data from the given url')
+    
+    logger.success(f"Successfully imported the dataset from, {ext_src}")
+    store_data(df, new_filename, destpath)
+    return df
+
+def store_data(data_df: pd.DataFrame, filename: str, destpath):
+    ## Handles situations of duplicate filenames
+    appended_num = 0
+    corrected_filename = f'{filename}.csv'
+    while os.path.exists(os.path.join(destpath, corrected_filename)):
+        appended_num += 1
+        corrected_filename = f'{filename}-{appended_num}'
+    data_df.to_csv(os.path.join(destpath, corrected_filename))
 
 @app.command()
 def main(
         local: Annotated[str, typer.Option("--local-path", "-l")] = None,
-        external: Annotated[str, typer.Option("--ext-path", "-e")] = None
+        external: Annotated[str, typer.Option("--ext-path", "-e")] = None,
+        third_party_source: Optional[Annotated[str, typer.Option("--third-party", "-tp")]] = False
     ):
 
     if local or external:
         if local:
             logger.info("Import from local source")
-            res, msg = import_from_local_source(local)
+            df = import_from_local_source(local, third_party_source)
         else:
             logger.info("Import from external source")
-            res, msg = import_from_ext_source(external)
-
-        if res == 'Success':
-            logger.success(msg)
-        else:
-            logger.error(msg) 
+            df = import_from_ext_source(external)
     else:
         logger.error("No source specified")
-    
+    return df
 
 if __name__ == "__main__":
     app()
