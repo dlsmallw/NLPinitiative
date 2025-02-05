@@ -20,9 +20,7 @@ def gen_import_filename(url: str):
     def github():
         parsed = urlparse(url)
         path = parsed.path
-        print(path)
         path_arr = path.split('/')[1:]
-        print(path_arr)
         return '_'.join([path_arr[0], path_arr[1], path_arr[-1]])
 
     if 'github' in url:
@@ -72,7 +70,9 @@ def import_from_local_source(filepath, tp_src=False) -> pd.DataFrame:
         raise Exception(f"Invalid filepath, {filepath}")
     
     destpath = EXTERNAL_DATA_DIR if tp_src else RAW_DATA_DIR
-    filename, ext = os.path.splitext(filepath)[-2:].lower()
+    tail = os.path.split(filepath)[-1]
+    filename, ext = os.path.splitext(tail)[-2:]
+    print(filename)
     if ext not in accepted_formats:
         raise Exception("Unsupported file type")
     
@@ -88,7 +88,7 @@ def import_from_local_source(filepath, tp_src=False) -> pd.DataFrame:
         
 def import_from_ext_source(ext_src):
     if not valid_url_scheme(ext_src):
-        raise Exception("Filepath not provided")
+        raise Exception("URL not provided")
         
     url = format_url(ext_src)
     path = urlparse(url).path
