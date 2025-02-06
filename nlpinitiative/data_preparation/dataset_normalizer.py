@@ -91,17 +91,22 @@ def main(
     
     
     export_name = filename if new_name is not None else new_name
-    filepath = RAW_DATA_DIR / filename if raw_flag else EXTERNAL_DATA_DIR / filename
     schema_path = CONV_SCHEMA_DIR / conv_schema_filename
-    if not valid_filepath(filepath): 
-        logger.error('The file specified does not exist within the chosen directory')
-        return
+
+    filepaths = []
+    for filename in filenames:
+        filepath = RAW_DATA_DIR / filename if raw_flag else EXTERNAL_DATA_DIR / filename
+        if not valid_filepath(filepath): 
+            logger.error('The file specified does not exist within the chosen directory')
+            return
+        filepaths.append(filepath)
+
     if not valid_filepath(schema_path):
         logger.error('The schema file specified does not exist within the conversion_schema directory')
         return
     
     try:
-        convert_to_master_schema(filepath, schema_path)
+        df = convert_to_master_schema(filepath, schema_path)
     except Exception as e:
         logger.error(e)
 
