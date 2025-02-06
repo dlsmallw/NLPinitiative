@@ -3,6 +3,7 @@ from loguru import logger
 from urllib.parse import urlparse
 import os, typer
 import pandas as pd
+import csv
 
 from nlpinitiative.config import EXTERNAL_DATA_DIR, RAW_DATA_DIR
 
@@ -52,7 +53,10 @@ def srcdata_to_df(source: str, ext: str) -> pd.DataFrame:
     try:
         match ext:
             case '.csv':
-                df = pd.read_csv(source)
+                try:
+                    df = pd.read_csv(source)
+                except:
+                    df = pd.read_csv(source, delimiter=';')
             case '.xlsx':
                 df = pd.read_excel(source)
             case '.json':

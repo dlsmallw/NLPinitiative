@@ -1,0 +1,26 @@
+{
+    "dataset_categories": [
+        "GENDER", 
+        "RACE", 
+        "SEXUALITY", 
+        "DISABILITY", 
+        "RELIGION", 
+        "UNSPECIFIED"
+    ],
+    "column_mapping": [
+        {
+            "old_columns": [
+                {
+                    "col_name": null,
+                    "true_value": 1,
+                    "false_value": 0
+                }
+            ],
+            "new_column": {
+                "col_name": null,
+                "true_value": 1,
+                "false_value": 0
+            }
+        }
+    ]
+}
