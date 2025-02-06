@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 import os, typer
 import pandas as pd
 import csv
+from pathlib import Path
 
 from nlpinitiative.config import EXTERNAL_DATA_DIR, RAW_DATA_DIR
 
@@ -114,7 +115,7 @@ def import_from_ext_source(ext_src):
     store_data(df, new_filename, destpath)
     return df
 
-def store_data(data_df: pd.DataFrame, filename: str, destpath):
+def store_data(data_df: pd.DataFrame, filename: str, destpath: Path):
     ## Handles situations of duplicate filenames
     appended_num = 0
     corrected_filename = f'{filename}.csv'

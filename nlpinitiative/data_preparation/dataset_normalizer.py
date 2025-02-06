@@ -8,6 +8,7 @@ import os
 import pandas as pd
 import json
 
+
 from nlpinitiative.config import (
     RAW_DATA_DIR, 
     EXTERNAL_DATA_DIR, 
@@ -27,36 +28,69 @@ def load_src_file(path: Path) -> pd.DataFrame:
 def load_conv_schema(path: Path) -> dict[str:str]:
     return json.load(open(path, 'r'))
 
-def convert_to_master_schema(filesrc: Path, cv_path: Path):
-    src_df = load_src_file(filesrc)
+def store_normalized_dataset(df: pd.DataFrame, filename: str):
+    destpath = INTERIM_DATA_DIR
+    ## Handles situations of duplicate filenames
+    appended_num = 0
+    corrected_filename = f'{filename}.csv'
+    while os.path.exists(os.path.join(destpath, corrected_filename)):
+        appended_num += 1
+        corrected_filename = f'{filename}-{appended_num}.csv'
+    df.to_csv(os.path.join(destpath, corrected_filename))
+
+def merge_dataframes(df1: pd.DataFrame, df2: pd.DataFrame, merge_col: str) -> pd.DataFrame:
+    new_df = pd.merge(df1, df2, on=merge_col, how='left').fillna(0.0)
+    return new_df
+
+def convert_to_master_schema(files: list[Path], cv_path: Path, export_name: str):
     conv_scema = load_conv_schema(cv_path)
+    data_col_name = conv_scema['data_col']
+    schema_cats = conv_scema['column_mapping'].keys()
+
+    num_files = len(files)
+    src_df = None
+    for i in range(0, num_files):
+        df = load_src_file(files[i])
+        if src_df is not None:
+            src_df = merge_dataframes(src_df, df, data_col_name)
+        else:
+            src_df = df
     
     master_df = pd.DataFrame(data=[], columns=DATASET_COLS)
-
-    for index, row in src_df.iterrows():
-        pass
-
+    master_df[DATASET_COLS[0]] = src_df[data_col_name]
+    for cat in schema_cats:
+        from_columns = conv_scema['column_mapping'][cat]
+        if len(from_columns) > 0:
+            master_df[cat] = src_df[from_columns].sum(axis=1)
+        else:
+            master_df[cat] = 0.0
+    master_df[DATASET_COLS[2]] = master_df[DATASET_COLS[1]].eq(0).astype(pd.Float64Dtype())
+    
+    store_normalized_dataset(master_df, export_name)
+    return master_df
+    
 
 @app.command()
 def main(
-    filename: Annotated[str, typer.Option('--dataset', '-d')],
+    filenames: Annotated[list[str], typer.Option('--dataset', '-d')],
     conv_schema_filename: Annotated[str, typer.Option('--conv-schema', '-cv')],
     raw_flag : bool = typer.Option(False, '--ext', '-e'),
-    ext_flag : bool = typer.Option(False, '--raw', '-r')
+    ext_flag : bool = typer.Option(False, '--raw', '-r'),
+    new_name : Annotated[str, typer.Option('--new-name', '-n')] = None
 ):
     
     print(DATASET_COLS)
-    
+
     if raw_flag and ext_flag:
         logger.error('Only one directory flag can be used')
         return
     
-    if not conv_schema_filename or filename:
+    if not conv_schema_filename or filenames:
         logger.error('Missing conversion schema or filename argument')
         return
     
     
-    
+    export_name = filename if new_name is not None else new_name
     filepath = RAW_DATA_DIR / filename if raw_flag else EXTERNAL_DATA_DIR / filename
     schema_path = CONV_SCHEMA_DIR / conv_schema_filename
     if not valid_filepath(filepath): 
