@@ -36,7 +36,7 @@ def store_normalized_dataset(df: pd.DataFrame, filename: str):
     while os.path.exists(os.path.join(destpath, corrected_filename)):
         appended_num += 1
         corrected_filename = f'{filename}-{appended_num}.csv'
-    df.to_csv(os.path.join(destpath, corrected_filename))
+    df.to_csv(os.path.join(destpath, corrected_filename), index=False)
 
 def merge_dataframes(df1: pd.DataFrame, df2: pd.DataFrame, merge_col: str) -> pd.DataFrame:
     new_df = pd.merge(df1, df2, on=merge_col, how='left').fillna(0.0)
@@ -65,6 +65,11 @@ def convert_to_master_schema(files: list[Path], cv_path: Path, export_name: str)
         else:
             master_df[cat] = 0.0
     master_df[DATASET_COLS[2]] = master_df[DATASET_COLS[1]].eq(0).astype(pd.Float64Dtype())
+
+    cols = master_df.columns
+    for col in cols:
+        if "unnamed" in col.lower():
+            master_df.drop(col)
     
     store_normalized_dataset(master_df, export_name)
     return master_df

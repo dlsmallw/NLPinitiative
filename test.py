@@ -15,5 +15,8 @@ srcs = [
 ]
 conv = CONV_SCHEMA_DIR / "ethos_schema_mapping.json"
 
-df2 = dataset_normalizer.convert_to_master_schema(srcs, conv, 'ETHOS_dataset_converted')
-print(df2)
+# df2 = dataset_normalizer.convert_to_master_schema(srcs, conv, 'ETHOS_dataset_converted')
+# print(df2)
+
+dataset = data_preparation.get_dataset_from_file("ETHOS_dataset_converted.csv")
+print(dataset)

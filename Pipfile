@@ -19,6 +19,7 @@ typer = "*"
 tokenizers = "*"
 datasets = "*"
 transformers = "*"
+jupyter = "*"
 
 [requires]
 python_version = "3.12"
