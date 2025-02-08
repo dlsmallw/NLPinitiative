@@ -106,11 +106,9 @@ def main(
         return
     
     try:
-        df = convert_to_master_schema(filepath, schema_path)
+        df = convert_to_master_schema(filepath, schema_path, export_name)
     except Exception as e:
         logger.error(e)
-
-
 
 if __name__ == "__main__":
     app()
