@@ -133,7 +133,7 @@ def preprocess_dataset(dataset, labels, tokenizer):
         tokenizer = get_tokenizer()
 
     encoded_ds = dataset.map(preprocess, batched=True, remove_columns=dataset['train'].column_names)
-    encoded_ds.set_format("torch")
+    # encoded_ds.set_format("torch")
     return encoded_ds
     
 
