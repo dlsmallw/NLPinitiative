@@ -70,8 +70,7 @@ def convert_to_master_schema(files: list[Path], cv_path: Path, export_name: str)
     for col in cols:
         if "unnamed" in col.lower():
             master_df.drop(col)
-    
-    store_normalized_dataset(master_df, export_name)
+
     return master_df
     
 
@@ -79,28 +78,20 @@ def convert_to_master_schema(files: list[Path], cv_path: Path, export_name: str)
 def main(
     filenames: Annotated[list[str], typer.Option('--dataset', '-d')],
     conv_schema_filename: Annotated[str, typer.Option('--conv-schema', '-cv')],
-    raw_flag : bool = typer.Option(False, '--ext', '-e'),
-    ext_flag : bool = typer.Option(False, '--raw', '-r'),
+    ext_flag : bool = typer.Option(False, '--ext', '-e'),
     new_name : Annotated[str, typer.Option('--new-name', '-n')] = None
-):
-    
-    print(DATASET_COLS)
-
-    if raw_flag and ext_flag:
-        logger.error('Only one directory flag can be used')
-        return
-    
+):  
     if not conv_schema_filename or filenames:
         logger.error('Missing conversion schema or filename argument')
         return
     
     
-    export_name = filename if new_name is not None else new_name
+    export_name = filename if new_name is None else new_name
     schema_path = CONV_SCHEMA_DIR / conv_schema_filename
 
     filepaths = []
     for filename in filenames:
-        filepath = RAW_DATA_DIR / filename if raw_flag else EXTERNAL_DATA_DIR / filename
+        filepath = EXTERNAL_DATA_DIR / filename if ext_flag else RAW_DATA_DIR / filename
         if not valid_filepath(filepath): 
             logger.error('The file specified does not exist within the chosen directory')
             return
@@ -112,6 +103,7 @@ def main(
     
     try:
         df = convert_to_master_schema(filepath, schema_path, export_name)
+        store_normalized_dataset(df, export_name)
     except Exception as e:
         logger.error(e)
 

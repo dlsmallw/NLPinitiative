@@ -47,11 +47,15 @@ create_environment:
 data_import: requirements
 	$(PYTHON_INTERPRETER) nlpinitiative/data_preparation/data_import.py $(FLAG_ARG) $(FILEPATH_ARG)
 
+## Normalize dataset to standard schema
+.PHONY: data_normalize
+data_normalize: requirements
+	$(PYTHON_INTERPRETER) nlpinitiative/data_preparation/data_normalize.py $(ARGS)
 
 ## Make Dataset
 .PHONY: data
 data: requirements
-	$(PYTHON_INTERPRETER) nlpinitiative/dataset.py
+	$(PYTHON_INTERPRETER) nlpinitiative/data_preparation/data_preparation.py $(FLAG_ARG) $(FILEPATH_ARG)
 
 
 #################################################################################
