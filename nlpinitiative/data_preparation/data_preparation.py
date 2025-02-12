@@ -35,7 +35,8 @@ from nlpinitiative.config import (
     GENERATOR_BATCH_SIZE, 
     SPECIAL_TOKENS,
     DEF_MODEL,
-    DATASET_COLS
+    DATASET_COLS,
+    TRAIN_TEST_SPLIT
 )
 
 app = typer.Typer()
@@ -85,7 +86,8 @@ def get_dataset_from_file(filename: str, srcdir: Path = INTERIM_DATA_DIR):
     if filename and os.path.exists(os.path.join(srcdir, filename)):
         ext = os.path.splitext(filename)[-1]
         ext = ext.replace('.', '')
-        return load_dataset(ext, data_files=os.path.join(srcdir, filename))
+        ds = load_dataset(ext, data_files=os.path.join(srcdir, filename), split='train').train_test_split(test_size=TRAIN_TEST_SPLIT)
+        return ds
     else:
         raise Exception('Invalid file name or file path')
     
@@ -136,21 +138,20 @@ def preprocess_dataset(dataset, labels, tokenizer):
     # encoded_ds.set_format("torch")
     return encoded_ds
     
-
-    
-
 @app.command()
 def main(
         src_name: Annotated[str, typer.Option("--data-src", "-d")]
     ):
-    res, msg = None
     dataset_path = INTERIM_DATA_DIR / src_name
 
     if src_name and len(src_name) > 0:
-        if res == 'Success':
-            logger.success(msg)
-        else:
-            logger.error(msg) 
+        try:
+            dataset = get_dataset_from_file(dataset_path)
+            dataset['train'].save_to_disk(PROCESSED_DATA_DIR / 'train')
+            dataset['test'].save_to_disk(PROCESSED_DATA_DIR / 'test')
+            logger.success(f"Successfully generated training/testing datasets and saved in {PROCESSED_DATA_DIR}")
+        except:
+            logger.error("Failed to generate datasets")
     else:
         logger.error("No source specified")
     

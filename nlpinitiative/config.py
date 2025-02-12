@@ -34,6 +34,7 @@ DEF_MODEL = "bert-base-uncased"
 BINARY_LABELS = ["DISCRIMINATORY", "NEUTRAL"]
 CATEGORY_LABELS = ["GENDER", "RACE", "SEXUALITY", "DISABILITY", "RELIGION", "UNSPECIFIED"]
 DATASET_COLS = ["TEXT"] + BINARY_LABELS + CATEGORY_LABELS
+TRAIN_TEST_SPLIT = 0.3  ## Default of 0.3 is standard for most model pipelines
 
 # If tqdm is installed, configure loguru with tqdm.write
 # https://github.com/Delgan/loguru/issues/135
