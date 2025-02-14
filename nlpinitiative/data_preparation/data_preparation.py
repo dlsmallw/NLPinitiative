@@ -36,6 +36,8 @@ from nlpinitiative.config import (
     SPECIAL_TOKENS,
     DEF_MODEL,
     DATASET_COLS,
+    BINARY_LABELS,
+    CATEGORY_LABELS,
     TRAIN_TEST_SPLIT
 )
 
@@ -92,6 +94,19 @@ def get_dataset_from_file(filename: str, srcdir: Path = INTERIM_DATA_DIR):
         return ds
     else:
         raise Exception('Invalid file name or file path')
+    
+def separate_datasets(dataset: Dataset):
+    bin_ds = DatasetDict({
+        'train': dataset['train'].remove_columns(CATEGORY_LABELS),
+        'test': dataset['test'].remove_columns(CATEGORY_LABELS)
+    })
+
+    ml_ds = DatasetDict({
+        'train': dataset['train'].remove_columns(BINARY_LABELS),
+        'test': dataset['test'].remove_columns(BINARY_LABELS)
+    })
+
+    return bin_ds, ml_ds
     
 def get_tokenizer(cust_filename: str = None):
     if cust_filename:
