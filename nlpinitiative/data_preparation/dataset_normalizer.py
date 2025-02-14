@@ -14,7 +14,8 @@ from nlpinitiative.config import (
     EXTERNAL_DATA_DIR, 
     INTERIM_DATA_DIR, 
     CONV_SCHEMA_DIR, 
-    DATASET_COLS
+    DATASET_COLS,
+    CATEGORY_LABELS
 )
 
 app = typer.Typer()
@@ -61,16 +62,28 @@ def convert_to_master_schema(files: list[Path], cv_path: Path, export_name: str)
     for cat in schema_cats:
         from_columns = conv_scema['column_mapping'][cat]
         if len(from_columns) > 0:
-            master_df[cat] = src_df[from_columns].sum(axis=1)
+            if cat == DATASET_COLS[1]:
+                master_df[cat] = src_df[from_columns].gt(0.0).astype(pd.Int64Dtype())
+            else:
+                master_df[cat] = src_df[from_columns].sum(axis=1)
         else:
             master_df[cat] = 0.0
-    master_df[DATASET_COLS[2]] = master_df[DATASET_COLS[1]].eq(0).astype(pd.Float64Dtype())
 
     cols = master_df.columns
     for col in cols:
         if "unnamed" in col.lower():
             master_df.drop(col)
 
+    indices_to_purge = []
+    for index, row in master_df.iterrows():
+        is_hate = row[DATASET_COLS[1]] == 1
+        has_cat_values = row[CATEGORY_LABELS].sum() > 0.0
+
+        if is_hate and not has_cat_values \
+            or not is_hate and has_cat_values:
+            indices_to_purge.append(index)
+
+    master_df.drop(master_df.index[indices_to_purge], inplace=True)
     return master_df
     
 

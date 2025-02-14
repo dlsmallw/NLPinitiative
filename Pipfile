@@ -20,6 +20,7 @@ tokenizers = "*"
 datasets = "*"
 transformers = "*"
 jupyter = "*"
+torch = "*"
 
 [requires]
 python_version = "3.12"

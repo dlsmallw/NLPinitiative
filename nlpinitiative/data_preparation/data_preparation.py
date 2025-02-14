@@ -39,6 +39,8 @@ from nlpinitiative.config import (
     TRAIN_TEST_SPLIT
 )
 
+import torch
+
 app = typer.Typer()
 
 def is_valid_dir(dirpath: Path):
@@ -135,7 +137,7 @@ def preprocess_dataset(dataset, labels, tokenizer):
         tokenizer = get_tokenizer()
 
     encoded_ds = dataset.map(preprocess, batched=True, remove_columns=dataset['train'].column_names)
-    # encoded_ds.set_format("torch")
+    encoded_ds.set_format("torch")
     return encoded_ds
     
 @app.command()
