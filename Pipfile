@@ -18,9 +18,9 @@ typer = "*"
 "nlpinitiative" ={editable = true, path = "."}
 tokenizers = "*"
 datasets = "*"
-transformers = "*"
 jupyter = "*"
 torch = "*"
+transformers = {extras = ["torch"], version = "*"}
 
 [requires]
 python_version = "3.12"

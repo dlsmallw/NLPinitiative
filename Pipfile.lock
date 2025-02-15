@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "ef4a828629a43122aaf388a144cc6737c15cfa757667f62bfe6519d2f6227b61"
+            "sha256": "eb61a0b1a853cf347b6d14aaaa22badfd9863b9a38b3248953ae31edcaff42cc"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,13 @@
         ]
     },
     "default": {
+        "accelerate": {
+            "hashes": [
+                "sha256:518631c0adb80bd3d42fb29e7e2dc2256bcd7c786b0ba9119bbaa08611b36d9c",
+                "sha256:5788d9e6a7a9f80fed665cf09681c4dddd9dc056bea656db4140ffc285ce423e"
+            ],
+            "version": "==1.3.0"
+        },
         "aiohappyeyeballs": {
             "hashes": [
                 "sha256:147ec992cf873d74f5062644332c539fcd42956dc69453fe5204195e560517e1",
@@ -523,12 +530,12 @@
         },
         "datasets": {
             "hashes": [
-                "sha256:9a6e1a356052866b5dbdd9c9eedb000bf3fc43d986e3584d9b028f4976937229",
-                "sha256:f3d2ba2698b7284a4518019658596a6a8bc79f31e51516524249d6c59cf0fe2a"
+                "sha256:22312d09626f8fc3aa0a237b0c164997f5903bddd4c4c9e27dbaf563754c681b",
+                "sha256:54c607b06f6eaa1572e21e200d2870d89d50e3bcc622dc2021a53a6ce4f684c2"
             ],
             "index": "pypi",
             "markers": "python_full_version >= '3.9.0'",
-            "version": "==3.2.0"
+            "version": "==3.3.0"
         },
         "debugpy": {
             "hashes": [
@@ -784,11 +791,11 @@
                 "http"
             ],
             "hashes": [
-                "sha256:4b0afb90c2f21832df142f292649035d80b421f60a9e1c027802e5a0da2b04e8",
-                "sha256:a0947d552d8a6efa72cc2c730b12c41d043509156966cca4fb157b0f2a0c574b"
+                "sha256:670700c977ed2fb51e0d9f9253177ed20cbde4a3e5c0283cc5385b5870c8533f",
+                "sha256:b520aed47ad9804237ff878b504267a3b0b441e97508bd6d2d8774e3db85cee2"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==2024.9.0"
+            "version": "==2024.12.0"
         },
         "ghp-import": {
             "hashes": [
@@ -2643,11 +2650,13 @@
             "version": "==5.14.3"
         },
         "transformers": {
+            "extras": [
+                "torch"
+            ],
             "hashes": [
                 "sha256:78697f990f5ef350c23b46bf86d5081ce96b49479ab180b2de7687267de8fd36",
                 "sha256:a5e8f1e9a6430aa78215836be70cecd3f872d99eeda300f41ad6cc841724afdb"
             ],
-            "index": "pypi",
             "markers": "python_full_version >= '3.9.0'",
             "version": "==4.48.3"
         },

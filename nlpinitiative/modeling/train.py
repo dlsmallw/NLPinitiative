@@ -48,7 +48,7 @@ def training_args(
 
     return TrainingArguments(
         output_dir, 
-        evaluation_strategy=eval_strat, 
+        eval_strategy=eval_strat, 
         save_strategy=save_strat,
         learning_rate=learn_rate,
         per_device_train_batch_size=batch_sz,
@@ -60,34 +60,16 @@ def training_args(
     )
 
 
-def _get_model(model_id_str, task_type, num_lbls, id_to_lbl_dict, lbl_to_id_dict):
-    if not model_id_str:
-        model_id_str = DEF_MODEL
+def get_model(num_lbls, id2lbl_dict, lbl2id_dict, model_name_or_path=None, task_type=None):
+    if not model_name_or_path:
+        model_name_or_path = DEF_MODEL
 
     return AutoModelForSequenceClassification.from_pretrained(
-        model_id_str,
+        model_name_or_path,
         problem_type=task_type,
         num_labels=num_lbls,
-        id2label=id_to_lbl_dict,
-        label2id=lbl_to_id_dict
-    )
-
-def binary_class_model(num_lbls, id2lbl_dict, lbl2id_dict, model_type=None):
-    return _get_model(
-        model_id_str=model_type,
-        task_type="multi_label_regression",
-        num_lbls=num_lbls,
-        id2lbl_dict=id2lbl_dict,
-        lbl2id_dict=lbl2id_dict
-    )
-
-def multilbl_regression_model(num_lbls, id2lbl_dict, lbl2id_dict, model_type=None):
-    return _get_model(
-        model_id_str=model_type,
-        task_type="multi_label_regression",
-        num_lbls=num_lbls,
-        id2lbl_dict=id2lbl_dict,
-        lbl2id_dict=lbl2id_dict
+        id2label=id2lbl_dict,
+        label2id=lbl2id_dict
     )
 
 @app.command()
