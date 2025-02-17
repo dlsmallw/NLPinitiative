@@ -19,7 +19,10 @@ from tokenizers import (
 from datasets import (
     Dataset,
     DatasetDict,
-    load_dataset
+    load_dataset,
+    Value,
+    Array2D,
+    Features
 )
 
 from transformers import (
@@ -96,17 +99,46 @@ def get_dataset_from_file(filename: str, srcdir: Path = INTERIM_DATA_DIR):
         raise Exception('Invalid file name or file path')
     
 def separate_datasets(dataset: Dataset):
-    bin_ds = DatasetDict({
-        'train': dataset['train'].remove_columns(CATEGORY_LABELS),
-        'test': dataset['test'].remove_columns(CATEGORY_LABELS)
-    })
+    def get_bin_ds():
+        train = dataset['train'].remove_columns(CATEGORY_LABELS)
+        test = dataset['test'].remove_columns(CATEGORY_LABELS)
 
-    ml_ds = DatasetDict({
-        'train': dataset['train'].remove_columns(BINARY_LABELS),
-        'test': dataset['test'].remove_columns(BINARY_LABELS)
-    })
+        ds = DatasetDict({
+            'train': train.rename_column("DISCRIMINATORY", "label"),
+            'test': test.rename_column("DISCRIMINATORY", "label")
+        })
 
-    return bin_ds, ml_ds
+        return ds
+    
+    def get_ml_regr_ds():
+        def combine_labels(ex_ds):
+            ex_ds['labels'] = [
+                float(ex_ds["GENDER"]),
+                float(ex_ds["RACE"]),
+                float(ex_ds["SEXUALITY"]),
+                float(ex_ds["DISABILITY"]),
+                float(ex_ds["RELIGION"]),
+                float(ex_ds["UNSPECIFIED"]),
+            ]
+            print (ex_ds['labels'])
+            return ex_ds
+
+        train = dataset['train'].remove_columns(BINARY_LABELS)
+        train = train.map(combine_labels)
+        train = train.remove_columns(CATEGORY_LABELS)
+        test = dataset['test'].remove_columns(BINARY_LABELS)
+        test = test.map(combine_labels)
+        test = test.remove_columns(CATEGORY_LABELS)
+
+
+        ds = DatasetDict({
+            'train': train,
+            'test': test
+        })
+
+        return ds
+
+    return get_bin_ds(), get_ml_regr_ds()
     
 def get_tokenizer(cust_filename: str = None):
     if cust_filename:
@@ -133,25 +165,40 @@ def get_labels_and_dicts(dataset: Dataset):
     idx2lbl = {idx:lbl for idx, lbl in enumerate(lbls)}
     return lbls, lbl2idx, idx2lbl
 
+# def preprocess_dataset(dataset, labels, tokenizer):
+#     def preprocess(data):
+#         text_batch = data[DATASET_COLS[0]]
+#         encoding = tokenizer(text_batch, padding='max_length', truncation=True, max_length=128)
+
+#         labels_batch = {lbl_col: data[lbl_col] for lbl_col in data.keys() if lbl_col in labels}
+#         label_matrix = np.zeros((len(text_batch), len(labels)))
+#         print(labels_batch)
+#         print(label_matrix)
+#         for idx, lbl in enumerate(labels):
+#             label_matrix[:, idx] = labels_batch[lbl]
+        
+#         encoding["labels"] = label_matrix.tolist()
+#         return encoding
+    
+#     if not labels:
+#         labels = [label for label in dataset["train"].features.keys() if label not in [DATASET_COLS[0]]]
+#     if not tokenizer:
+#         tokenizer = get_tokenizer()
+
+#     encoded_ds = dataset.map(preprocess, batched=True)
+#     encoded_ds.set_format("torch")
+#     return encoded_ds
+
 def preprocess_dataset(dataset, labels, tokenizer):
     def preprocess(data):
-        text_batch = data[DATASET_COLS[0]]
-        encoding = tokenizer(text_batch, padding='max_length', truncation=True, max_length=128)
-
-        labels_batch = {lbl_col: data[lbl_col] for lbl_col in data.keys() if lbl_col in labels}
-        label_matrix = np.zeros((len(text_batch), len(labels)))
-        for idx, lbl in enumerate(labels):
-            label_matrix[:, idx] = labels_batch[lbl]
-        
-        encoding["labels"] = label_matrix.tolist()
-        return encoding
+        return tokenizer(data[DATASET_COLS[0]], padding='max_length', truncation=True, max_length=128)
     
     if not labels:
         labels = [label for label in dataset["train"].features.keys() if label not in [DATASET_COLS[0]]]
     if not tokenizer:
         tokenizer = get_tokenizer()
 
-    encoded_ds = dataset.map(preprocess, batched=True, remove_columns=dataset['train'].column_names)
+    encoded_ds = dataset.map(preprocess, batched=True)
     encoded_ds.set_format("torch")
     return encoded_ds
     
