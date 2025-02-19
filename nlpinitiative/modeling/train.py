@@ -1,13 +1,7 @@
-from pathlib import Path
-
-import typer
-from loguru import logger
-from tqdm import tqdm
-
-from transformers import (
-    AutoModelForSequenceClassification,
-    Trainer, 
-    TrainingArguments
+from nlpinitiative.config import (
+    MODELS_DIR, 
+    DEF_MODEL,
+    CATEGORY_LABELS
 )
 
 from sklearn.metrics import (
@@ -20,19 +14,40 @@ from sklearn.metrics import (
     r2_score
 )
 
-import torch
-import numpy as np
-from scipy.stats import pearsonr
-
-from nlpinitiative.config import (
-    MODELS_DIR, 
-    DEF_MODEL,
-    CATEGORY_LABELS
+from transformers import (
+    AutoModelForSequenceClassification,
+    Trainer, 
+    TrainingArguments
 )
-from nlpinitiative.data_preparation import data_preparation
+
+from scipy.stats import pearsonr
+from pathlib import Path
+from loguru import logger
+from tqdm import tqdm
+import numpy as np
+import torch
+import typer
 
 app = typer.Typer()
 
+# Child class for the regression model with a custom compute_loss method due to issues with the base class failing to properly 
+# compute loss for a regression model
+class RegressionTrainer(Trainer):
+    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
+        labels = inputs.get("labels")
+        outputs = model(**inputs)
+        logits = outputs.get("logits")
+
+        # Ensure labels and logits are float
+        labels = labels.to(torch.float32)
+        logits = logits.to(torch.float32)
+
+        loss_fct = torch.nn.MSELoss()
+        loss = loss_fct(logits, labels)
+
+        return (loss, outputs) if return_outputs else loss
+
+# Function for computing metrics for evaluating binary classification training
 def compute_bin_metrics(eval_predicitions):
     predictions, lbls = eval_predicitions
     preds = predictions.argmax(axis=1)
@@ -53,6 +68,7 @@ def compute_bin_metrics(eval_predicitions):
         "auroc": auroc
     }
 
+# Function for computing metrics for evaluating regression training
 def compute_reg_metrics(eval_predicitions):
     preds, lbls = eval_predicitions
 
@@ -83,6 +99,7 @@ def compute_reg_metrics(eval_predicitions):
         'pearson_per_cat': pear_corr
     }
 
+# Base function for generating training arguments
 def _train_args(
     output_dir,
     eval_strat,
@@ -110,6 +127,7 @@ def _train_args(
         greater_is_better=greater_better
     )
 
+# Generates the training arguments used for training and evaluating the binary classification model
 def bin_train_args(
         output_dir = MODELS_DIR / 'binary_classification',
         eval_strat='epoch',
@@ -135,6 +153,7 @@ def bin_train_args(
         greater_better
     )
 
+# Generates the training arguments used for training and evaluating the multilabel regression model
 def ml_regr_train_args(
         output_dir = MODELS_DIR / 'multilabel_regression',
         eval_strat='epoch',
@@ -160,25 +179,13 @@ def ml_regr_train_args(
         greater_better
     )
 
-
-# def get_model(num_lbls, id2lbl_dict, lbl2id_dict, model_name_or_path=None, task_type=None):
-#     if not model_name_or_path:
-#         model_name_or_path = DEF_MODEL
-
-#     return AutoModelForSequenceClassification.from_pretrained(
-#         model_name_or_path,
-#         problem_type=task_type,
-#         num_labels=num_lbls,
-#         id2label=id2lbl_dict,
-#         label2id=lbl2id_dict
-#     )
-
+# Generates a model object for handling binary classification
 def get_bin_model(model_name=DEF_MODEL):
     return AutoModelForSequenceClassification.from_pretrained(
         model_name
     )
 
-
+# Generates a model obect for handling multilabel regression
 def get_ml_model(model_name=DEF_MODEL):
     return AutoModelForSequenceClassification.from_pretrained(
         model_name,
@@ -186,29 +193,6 @@ def get_ml_model(model_name=DEF_MODEL):
     )
 
 
-def get_model(model_name_or_path=None, task_type=None):
-    if not model_name_or_path:
-        model_name_or_path = DEF_MODEL
-
-    return AutoModelForSequenceClassification.from_pretrained(
-        model_name_or_path,
-        problem_type=task_type
-    )
-
-class RegressionTrainer(Trainer):
-    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
-        labels = inputs.get("labels")
-        outputs = model(**inputs)
-        logits = outputs.get("logits")
-
-        # Ensure labels and logits are float
-        labels = labels.to(torch.float32)
-        logits = logits.to(torch.float32)
-
-        loss_fct = torch.nn.MSELoss()
-        loss = loss_fct(logits, labels)
-
-        return (loss, outputs) if return_outputs else loss
 
 @app.command()
 def main(
