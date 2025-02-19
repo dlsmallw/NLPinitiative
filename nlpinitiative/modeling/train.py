@@ -27,6 +27,7 @@ from scipy.stats import pearsonr
 from nlpinitiative.config import (
     MODELS_DIR, 
     DEF_MODEL,
+    CATEGORY_LABELS
 )
 from nlpinitiative.data_preparation import data_preparation
 
@@ -171,6 +172,19 @@ def ml_regr_train_args(
 #         id2label=id2lbl_dict,
 #         label2id=lbl2id_dict
 #     )
+
+def get_bin_model(model_name=DEF_MODEL):
+    return AutoModelForSequenceClassification.from_pretrained(
+        model_name
+    )
+
+
+def get_ml_model(model_name=DEF_MODEL):
+    return AutoModelForSequenceClassification.from_pretrained(
+        model_name,
+        num_labels=len(CATEGORY_LABELS)
+    )
+
 
 def get_model(model_name_or_path=None, task_type=None):
     if not model_name_or_path:
