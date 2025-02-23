@@ -1,8 +1,10 @@
-from pathlib import Path
+"""
+Script file used for performing inference with an existing model.
+"""
 
+from pathlib import Path
 import typer
-from loguru import logger
-from tqdm import tqdm
+import torch
 
 from transformers import (
     AutoTokenizer,
@@ -13,18 +15,12 @@ from nlpinitiative.config import (
     DEF_MODEL
 )
 
-import torch
-
-from nlpinitiative.config import MODELS_DIR, PROCESSED_DATA_DIR
-
 app = typer.Typer()
 
+## Class used to encapsulate and handle the logic for inference
 class InferenceHandler:
     def __init__(self, bin_model_path: Path, ml_regr_model_path: Path):
         # Two separate tokenizers in case we utilize different base models
-        # self.bin_tokenizer = AutoTokenizer.from_pretrained(bin_model_path, model_type='bert')
-        # self.ml_regr_tokenizer = AutoTokenizer.from_pretrained(ml_regr_model_path, model_type='bert')
-
         self.bin_tokenizer = AutoTokenizer.from_pretrained(DEF_MODEL)
         self.ml_regr_tokenizer = AutoTokenizer.from_pretrained(DEF_MODEL)
 
@@ -34,11 +30,15 @@ class InferenceHandler:
         self.bin_model.eval()
         self.ml_regr_model.eval()
 
+    ## Encodes the textual data to a format the model can process (to integer ids corresponding to each token/word)
     def encode_input(self, text):
         bin_tokenized_input = self.bin_tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
         ml_tokenized_input = self.ml_regr_tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
         return bin_tokenized_input, ml_tokenized_input
     
+    ## Handles logic for checking the binary classfication of the text and 
+    ## performs the multilabel regression classification if the text is found
+    ## to be discriminatory
     def discriminatory_inference(self, text):
         bin_inputs, ml_inputs = self.encode_input(text)
 
@@ -76,25 +76,3 @@ class InferenceHandler:
                 idx += 1
         
         return res_obj
-
-
-
-@app.command()
-def main(
-    # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
-    features_path: Path = PROCESSED_DATA_DIR / "test_features.csv",
-    model_path: Path = MODELS_DIR / "model.pkl",
-    predictions_path: Path = PROCESSED_DATA_DIR / "test_predictions.csv",
-    # -----------------------------------------
-):
-    # ---- REPLACE THIS WITH YOUR OWN CODE ----
-    logger.info("Performing inference for model...")
-    for i in tqdm(range(10), total=10):
-        if i == 5:
-            logger.info("Something happened for iteration 5.")
-    logger.success("Inference complete.")
-    # -----------------------------------------
-
-
-if __name__ == "__main__":
-    app()

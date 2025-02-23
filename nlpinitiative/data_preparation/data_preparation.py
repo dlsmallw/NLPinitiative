@@ -1,10 +1,12 @@
-from typing_extensions import Annotated, Optional
+"""
+Script file used for facillitating dataset preparation and preprocessing
+for use in model training.
+"""
+
+from typing_extensions import Annotated
 from loguru import logger
-from urllib.parse import urlparse
-import os, shutil, requests, typer
 from pathlib import Path
-import pandas as pd
-import numpy as np
+import os, typer
 
 from tokenizers import (
     decoders,
@@ -13,21 +15,17 @@ from tokenizers import (
     pre_tokenizers,
     processors,
     trainers,
-    Tokenizer,
+    Tokenizer
 )
 
 from datasets import (
     Dataset,
     DatasetDict,
-    load_dataset,
-    Value,
-    Array2D,
-    Features
+    load_dataset
 )
 
 from transformers import (
     PreTrainedTokenizerFast,
-    PreTrainedTokenizer,
     AutoTokenizer
 )
 
@@ -44,10 +42,9 @@ from nlpinitiative.config import (
     TRAIN_TEST_SPLIT
 )
 
-import torch
-
 app = typer.Typer()
 
+## Validates the specified directory exists
 def is_valid_dir(dirpath: Path):
     if os.path.isdir(dirpath) and len(os.listdir(dirpath)) > 0:
         for child_path in os.listdir(dirpath):
@@ -56,6 +53,8 @@ def is_valid_dir(dirpath: Path):
         return True
     return False
 
+## Generates a custom tokenizer
+## NOTE: This will likely not be of use, since it will be better to use an already trained tokenizer
 def custom_tokenizer(tknzr_training_dataset: Dataset):
     def dataset_to_training_corpus(dataset: Dataset):
         for index in range(0, len(dataset), GENERATOR_BATCH_SIZE):
@@ -89,6 +88,7 @@ def custom_tokenizer(tknzr_training_dataset: Dataset):
 
     tokenizer.save(f"/nlpinitiative/data_preparation/tokenizers/{adjusted_fn}")
 
+## Loads a dataset from a specified file into a Dataset object
 def get_dataset_from_file(filename: str, srcdir: Path = INTERIM_DATA_DIR):
     if filename and os.path.exists(os.path.join(srcdir, filename)):
         ext = os.path.splitext(filename)[-1]
@@ -98,6 +98,9 @@ def get_dataset_from_file(filename: str, srcdir: Path = INTERIM_DATA_DIR):
     else:
         raise Exception('Invalid file name or file path')
     
+## Separates a dataset into a Training and Testing (evaluation) dataset pair and further
+## also handles formatting the datasets into a format that can be used for training the 
+## binary classification and multilabel regression models
 def separate_datasets(dataset: Dataset):
     def get_bin_ds():
         train = dataset['train'].remove_columns(CATEGORY_LABELS)
@@ -140,6 +143,7 @@ def separate_datasets(dataset: Dataset):
 
     return get_bin_ds(), get_ml_regr_ds()
     
+## Initializes a tokenizer object for use in preprocessing the data
 def get_tokenizer(cust_filename: str = None):
     if cust_filename:
         try:
@@ -165,30 +169,7 @@ def get_labels_and_dicts(dataset: Dataset):
     idx2lbl = {idx:lbl for idx, lbl in enumerate(lbls)}
     return lbls, lbl2idx, idx2lbl
 
-# def preprocess_dataset(dataset, labels, tokenizer):
-#     def preprocess(data):
-#         text_batch = data[DATASET_COLS[0]]
-#         encoding = tokenizer(text_batch, padding='max_length', truncation=True, max_length=128)
-
-#         labels_batch = {lbl_col: data[lbl_col] for lbl_col in data.keys() if lbl_col in labels}
-#         label_matrix = np.zeros((len(text_batch), len(labels)))
-#         print(labels_batch)
-#         print(label_matrix)
-#         for idx, lbl in enumerate(labels):
-#             label_matrix[:, idx] = labels_batch[lbl]
-        
-#         encoding["labels"] = label_matrix.tolist()
-#         return encoding
-    
-#     if not labels:
-#         labels = [label for label in dataset["train"].features.keys() if label not in [DATASET_COLS[0]]]
-#     if not tokenizer:
-#         tokenizer = get_tokenizer()
-
-#     encoded_ds = dataset.map(preprocess, batched=True)
-#     encoded_ds.set_format("torch")
-#     return encoded_ds
-
+## Handles the process of preprocessing the textual data into a format that can be used in the model training
 def preprocess_dataset(dataset, labels, tokenizer):
     def preprocess(data):
         return tokenizer(data[DATASET_COLS[0]], padding='max_length', truncation=True, max_length=128)
@@ -202,6 +183,7 @@ def preprocess_dataset(dataset, labels, tokenizer):
     encoded_ds.set_format("torch")
     return encoded_ds
     
+## Handles logic when calling the script from cmd or terminal
 @app.command()
 def main(
         src_name: Annotated[str, typer.Option("--data-src", "-d")]

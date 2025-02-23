@@ -1,9 +1,13 @@
+"""
+Script file used for facillitating dataset importing either from a 
+local source or from a remote source.
+"""
+
 from typing_extensions import Annotated, Optional
 from loguru import logger
 from urllib.parse import urlparse
 import os, typer
 import pandas as pd
-import csv
 from pathlib import Path
 
 from nlpinitiative.config import EXTERNAL_DATA_DIR, RAW_DATA_DIR
@@ -11,13 +15,15 @@ from nlpinitiative.config import EXTERNAL_DATA_DIR, RAW_DATA_DIR
 app = typer.Typer()
 accepted_formats = ['.csv', '.xlsx', '.json']
 
+## Checks that the url provided is valid
 def valid_url_scheme(url):
     if url:
         parsed_url = urlparse(url)
         return bool(parsed_url.scheme in ["http", "https", "ftp"])
     else:
         return False
-    
+
+## Generates a filename that will be used when importing new datasets
 def gen_import_filename(url: str):
     def github():
         parsed = urlparse(url)
@@ -31,6 +37,8 @@ def gen_import_filename(url: str):
         split_arr = url.split('/')
         return split_arr[-1]
     
+## Converts URLs to a format that can be used for importing data from a remote source
+## NOTE: Currently only used for converting GitHub urls to the appropriate format
 def format_url(url: str):
     def github():
         base_url = 'https://raw.githubusercontent.com'
@@ -49,7 +57,7 @@ def format_url(url: str):
     else:
         return url
     
-
+## Converts a dataset to a dataframe and also properly handles csv files with atypical delimiters
 def srcdata_to_df(source: str, ext: str) -> pd.DataFrame:
     try:
         match ext:
@@ -68,6 +76,7 @@ def srcdata_to_df(source: str, ext: str) -> pd.DataFrame:
     except Exception as e:
         raise Exception(f"Failed to import from source - {e}")
 
+## Handles importing a dataset from the local system using the filepath
 def import_from_local_source(filepath, tp_src=False) -> pd.DataFrame:
     if filepath is None or filepath == '':
         raise Exception("Filepath not provided")
@@ -90,7 +99,7 @@ def import_from_local_source(filepath, tp_src=False) -> pd.DataFrame:
     store_data(df, filename, destpath)
     return df
         
-        
+## Handles importing data from an external source (i.e., GitHub)      
 def import_from_ext_source(ext_src):
     if not valid_url_scheme(ext_src):
         raise Exception("URL not provided")
@@ -115,6 +124,7 @@ def import_from_ext_source(ext_src):
     store_data(df, new_filename, destpath)
     return df
 
+## Stores the imported dataset within the data directory
 def store_data(data_df: pd.DataFrame, filename: str, destpath: Path):
     ## Handles situations of duplicate filenames
     appended_num = 0
@@ -124,6 +134,7 @@ def store_data(data_df: pd.DataFrame, filename: str, destpath: Path):
         corrected_filename = f'{filename}-{appended_num}.csv'
     data_df.to_csv(os.path.join(destpath, corrected_filename))
 
+## Handles logic when calling the script from cmd or terminal
 @app.command()
 def main(
         local: Annotated[str, typer.Option("--local-path", "-l")] = None,

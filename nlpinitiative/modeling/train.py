@@ -1,3 +1,12 @@
+"""
+Script file containing the logic for training NLP models.
+"""
+
+from scipy.stats import pearsonr
+import numpy as np
+import torch
+import typer
+
 from nlpinitiative.config import (
     MODELS_DIR, 
     DEF_MODEL,
@@ -20,17 +29,9 @@ from transformers import (
     TrainingArguments
 )
 
-from scipy.stats import pearsonr
-from pathlib import Path
-from loguru import logger
-from tqdm import tqdm
-import numpy as np
-import torch
-import typer
-
 app = typer.Typer()
 
-# Child class for the regression model with a custom compute_loss method due to issues with the base class failing to properly 
+# Class for the regression model with a custom compute_loss method due to issues with the base class failing to properly 
 # compute loss for a regression model
 class RegressionTrainer(Trainer):
     def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
@@ -191,21 +192,3 @@ def get_ml_model(model_name=DEF_MODEL):
         model_name,
         num_labels=len(CATEGORY_LABELS)
     )
-
-
-
-@app.command()
-def main(
-    model_path: Path = MODELS_DIR / "model.pkl",
-):
-    # ---- REPLACE THIS WITH YOUR OWN CODE ----
-    logger.info("Training some model...")
-    for i in tqdm(range(10), total=10):
-        if i == 5:
-            logger.info("Something happened for iteration 5.")
-    logger.success("Modeling training complete.")
-    # -----------------------------------------
-
-
-if __name__ == "__main__":
-    app()

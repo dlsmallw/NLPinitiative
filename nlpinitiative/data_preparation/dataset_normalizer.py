@@ -1,13 +1,17 @@
-from pathlib import Path
+"""
+Script file used for facillitating normalization of a third-party dataset(s) into
+the format that we will utilize for training the model. This script can also handle 
+merging complimentary datasets (datasets that come from the same source that may have minor
+differences in labeling scheme).
+"""
 
-import typer
-from typing_extensions import Annotated, Optional, Required
+from typing_extensions import Annotated
 from loguru import logger
-from tqdm import tqdm
-import os
+from pathlib import Path
 import pandas as pd
+import typer
 import json
-
+import os
 
 from nlpinitiative.config import (
     RAW_DATA_DIR, 
@@ -20,15 +24,19 @@ from nlpinitiative.config import (
 
 app = typer.Typer()
 
+## Checks a filepath is valid
 def valid_filepath(path: Path):
     return os.path.exists(path)
 
+## Loads a csv file into a dataframe object
 def load_src_file(path: Path) -> pd.DataFrame:
     return pd.read_csv(path)
 
+## Loads the dataset conversion scheme that will be used for normalizing a dataset
 def load_conv_schema(path: Path) -> dict[str:str]:
     return json.load(open(path, 'r'))
 
+## Stores the normalized dataset as a csv file
 def store_normalized_dataset(df: pd.DataFrame, filename: str):
     destpath = INTERIM_DATA_DIR
     ## Handles situations of duplicate filenames
@@ -39,10 +47,12 @@ def store_normalized_dataset(df: pd.DataFrame, filename: str):
         corrected_filename = f'{filename}-{appended_num}.csv'
     df.to_csv(os.path.join(destpath, corrected_filename), index=False)
 
+## Handles merging complimentary datasets into a single dataset
 def merge_dataframes(df1: pd.DataFrame, df2: pd.DataFrame, merge_col: str) -> pd.DataFrame:
     new_df = pd.merge(df1, df2, on=merge_col, how='left').fillna(0.0)
     return new_df
 
+## Handles the process for normalizing the third-party datasets
 def convert_to_master_schema(files: list[Path], cv_path: Path, export_name: str):
     conv_scema = load_conv_schema(cv_path)
     data_col_name = conv_scema['data_col']
@@ -86,7 +96,7 @@ def convert_to_master_schema(files: list[Path], cv_path: Path, export_name: str)
     master_df.drop(master_df.index[indices_to_purge], inplace=True)
     return master_df
     
-
+## Handles logic when calling the script from cmd or terminal
 @app.command()
 def main(
     filenames: Annotated[list[str], typer.Option('--dataset', '-d')],
