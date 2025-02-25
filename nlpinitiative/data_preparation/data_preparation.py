@@ -7,6 +7,7 @@ from typing_extensions import Annotated
 from loguru import logger
 from pathlib import Path
 import os, typer
+import pandas as pd
 
 from tokenizers import (
     decoders,
@@ -41,6 +42,8 @@ from nlpinitiative.config import (
     CATEGORY_LABELS,
     TRAIN_TEST_SPLIT
 )
+
+from nlpinitiative.data_preparation.data_import import srcdata_to_df
 
 app = typer.Typer()
 
@@ -182,6 +185,43 @@ def preprocess_dataset(dataset, labels, tokenizer):
     encoded_ds = dataset.map(preprocess, batched=True)
     encoded_ds.set_format("torch")
     return encoded_ds
+
+def get_dataset_statistics(dataset_path):
+    def get_category_details():
+        cat_dict = dict()
+        for cat in CATEGORY_LABELS:
+            cat_dict[cat] = {
+                'total_combined_value': dataset_df[cat].sum(),
+                'num_positive_rows': len(dataset_df.loc[dataset_df[cat] > 0]),
+                'num_gt_threshold': len(dataset_df.loc[dataset_df[cat] >= 0.5]),
+                'num_rows_as_dominant_category': 0
+            }
+
+        for _, row in dataset_df.iterrows():
+            dominant_cat = None
+            dominant_val = 0
+
+            for cat in CATEGORY_LABELS:
+                cat_val = row[cat]
+                if cat_val > dominant_val:
+                    dominant_cat = cat
+                    dominant_val = cat_val
+
+            if dominant_cat is not None:
+                cat_dict[dominant_cat]['num_rows_as_dominant_category'] += 1
+
+        return cat_dict
+    dataset_df = srcdata_to_df(dataset_path, '.csv')
+
+    json_obj = {
+        'total_num_entries': len(dataset_df),
+        'num_positive_discriminatory': len(dataset_df.loc[dataset_df[BINARY_LABELS[0]] == 1]),
+        'num_negative_discriminatory': len(dataset_df.loc[dataset_df[BINARY_LABELS[0]] == 0]),
+        'category_stats': get_category_details()
+    }
+
+    return json_obj
+
     
 ## Handles logic when calling the script from cmd or terminal
 @app.command()
