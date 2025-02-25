@@ -70,8 +70,8 @@ def compute_bin_metrics(eval_predicitions):
     }
 
 # Function for computing metrics for evaluating regression training
-def compute_reg_metrics(eval_predicitions):
-    preds, lbls = eval_predicitions
+def compute_reg_metrics(eval_predictions):
+    preds, lbls = eval_predictions
 
     mse = mean_squared_error(lbls, preds, multioutput='raw_values')
     sqrt_mse = np.sqrt(mse)
