@@ -5,12 +5,16 @@ Script file containing the logic for training NLP models.
 from scipy.stats import pearsonr
 import numpy as np
 import torch
-import typer
+import json
+
+import huggingface_hub as hfh
 
 from nlpinitiative.config import (
     MODELS_DIR, 
     DEF_MODEL,
-    CATEGORY_LABELS
+    CATEGORY_LABELS,
+    BIN_REPO,
+    ML_REPO
 )
 
 from sklearn.metrics import (
@@ -29,8 +33,6 @@ from transformers import (
     TrainingArguments
 )
 
-app = typer.Typer()
-
 # Class for the regression model with a custom compute_loss method due to issues with the base class failing to properly 
 # compute loss for a regression model
 class RegressionTrainer(Trainer):
@@ -47,6 +49,8 @@ class RegressionTrainer(Trainer):
         loss = loss_fct(logits, labels)
 
         return (loss, outputs) if return_outputs else loss
+    
+
 
 # Function for computing metrics for evaluating binary classification training
 def compute_bin_metrics(eval_predicitions):
@@ -125,14 +129,18 @@ def _train_args(
         weight_decay=weight_decay,
         load_best_model_at_end=best_model_at_end,
         metric_for_best_model=best_model_metric,
-        greater_is_better=greater_better
+        greater_is_better=greater_better,
+        overwrite_output_dir=True,
+        save_steps=10,
+        save_on_each_node=True,
+        save_total_limit=5
     )
 
 # Generates the training arguments used for training and evaluating the binary classification model
 def bin_train_args(
         output_dir = MODELS_DIR / 'binary_classification',
-        eval_strat='epoch',
-        save_strat='epoch',
+        eval_strat='steps',
+        save_strat='steps',
         learn_rate=2e-5,
         batch_sz=8,
         num_train_epochs=3,
@@ -157,8 +165,8 @@ def bin_train_args(
 # Generates the training arguments used for training and evaluating the multilabel regression model
 def ml_regr_train_args(
         output_dir = MODELS_DIR / 'multilabel_regression',
-        eval_strat='epoch',
-        save_strat='epoch',
+        eval_strat='steps',
+        save_strat='steps',
         learn_rate=2e-5,
         batch_sz=8,
         num_train_epochs=3,
@@ -192,3 +200,35 @@ def get_ml_model(model_name=DEF_MODEL):
         model_name,
         num_labels=len(CATEGORY_LABELS)
     )
+
+def train(bin_trainer: Trainer, ml_trainer: Trainer, token=None):
+    bin_trainer.train()
+    bin_model = bin_trainer.model
+    bin_model.save_pretrained(save_directory=MODELS_DIR / 'binary_classification' / 'best_model')
+    
+    ml_trainer.train()
+    ml_model = ml_trainer.model
+    ml_model.save_pretrained(save_directory=MODELS_DIR / 'multilabel_regression' / 'best_model')
+    
+    if token:
+        bin_model.push_to_hub(BIN_REPO, token=token)
+        ml_model.push_to_hub(ML_REPO, token=token)
+
+    bin_eval = bin_trainer.evaluate()
+    ml_eval = ml_trainer.evaluate()
+    return bin_eval, ml_eval
+
+def upload_best_models(token):
+    def load_model(path):
+        with open(path / 'config.json') as config_file:
+            config_json = json.load(config_file)
+        model_type = config_json['model_type']
+        return AutoModelForSequenceClassification.from_pretrained(path, model_type=model_type)
+    
+    bin_model = load_model(MODELS_DIR / 'binary_classification/best_model')
+    ml_model = load_model(MODELS_DIR / 'multilabel_regression/best_model')
+
+    bin_model.push_to_hub(BIN_REPO, token=token)
+    hfh.upload_file(path_or_fileobj=MODELS_DIR / 'binary_classification/best_model/config.json', path_in_repo='config.json', repo_id=BIN_REPO, token=token)
+    ml_model.push_to_hub(ML_REPO, token=token)
+    hfh.upload_file(path_or_fileobj=MODELS_DIR / 'multilabel_regression/best_model/config.json', path_in_repo='config.json', repo_id=ML_REPO, token=token)

@@ -3,7 +3,6 @@ Script file used for performing inference with an existing model.
 """
 
 from pathlib import Path
-import typer
 import torch
 import json
 
@@ -13,14 +12,13 @@ from transformers import (
 )
 
 from nlpinitiative.config import (
+    MODELS_DIR,
     DEF_MODEL
 )
 
-app = typer.Typer()
-
 ## Class used to encapsulate and handle the logic for inference
 class InferenceHandler:
-    def __init__(self, bin_model_path: Path, ml_regr_model_path: Path):
+    def __init__(self, bin_model_path: Path = MODELS_DIR / 'binary_classification/best_model', ml_regr_model_path: Path = MODELS_DIR / 'multilabel_regression/best_model'):
         self.bin_tokenizer, self.bin_model = self.init_model_and_tokenizer(bin_model_path)
         self.ml_regr_tokenizer, self.ml_regr_model = self.init_model_and_tokenizer(ml_regr_model_path)
 
@@ -109,3 +107,5 @@ class InferenceHandler:
             results.append(max(0.0, item))
 
         return results
+    
+    

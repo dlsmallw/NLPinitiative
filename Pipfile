@@ -21,6 +21,9 @@ datasets = "*"
 jupyter = "*"
 torch = "*"
 transformers = {extras = ["torch"], version = "*"}
+streamlit = "*"
+huggingface-hub = "*"
+joblib = "*"
 
 [requires]
 python_version = "3.12"

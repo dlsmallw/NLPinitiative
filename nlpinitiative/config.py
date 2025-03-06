@@ -30,6 +30,10 @@ GENERATOR_BATCH_SIZE = 1000
 # Model defaults
 DEF_MODEL = "bert-base-uncased"
 
+# HF Hub Repositories
+BIN_REPO = 'dlsmallw/Binary-Classification-testing'
+ML_REPO = 'dlsmallw/Multilabel-Regression-testing'
+
 # dataset structure
 BINARY_LABELS = ["DISCRIMINATORY"]
 CATEGORY_LABELS = ["GENDER", "RACE", "SEXUALITY", "DISABILITY", "RELIGION", "UNSPECIFIED"]
