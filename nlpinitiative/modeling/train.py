@@ -211,8 +211,7 @@ def train(bin_trainer: Trainer, ml_trainer: Trainer, token=None):
     ml_model.save_pretrained(save_directory=MODELS_DIR / 'multilabel_regression' / 'best_model')
     
     if token:
-        bin_model.push_to_hub(BIN_REPO, token=token)
-        ml_model.push_to_hub(ML_REPO, token=token)
+        upload_best_models(token)
 
     bin_eval = bin_trainer.evaluate()
     ml_eval = ml_trainer.evaluate()
