@@ -1,5 +1,5 @@
 from nlpinitiative.data_preparation.data_normalize import DataNormalizer
-# from nlpinitiative.data_preparation.data_process import DataProcessor
+from nlpinitiative.data_preparation.data_process import DataProcessor
 
 import os
 import pandas as pd
@@ -15,6 +15,19 @@ from nlpinitiative.config import (
     NORM_SCHEMA_DIR,
     BINARY_LABELS,
     CATEGORY_LABELS,
+    DEF_MODEL
+)
+
+from datasets import (
+    Dataset,
+    DatasetDict,
+    load_dataset
+)
+
+from transformers import (
+    AutoTokenizer,
+    PreTrainedTokenizer,
+    PreTrainedTokenizerFast
 )
 
 ACCEPTED_FILE_FORMATS = ['.csv', '.xlsx', '.json']
@@ -22,7 +35,7 @@ ACCEPTED_FILE_FORMATS = ['.csv', '.xlsx', '.json']
 class DataManager:
     def __init__(self):
         self.normalizer = DataNormalizer()
-        # self.processor = DataProcessor()
+        self.processor = DataProcessor()
         self.rec_mgr = DatasetRecordManager()
 
     # Data Importing Functionality
@@ -214,6 +227,27 @@ class DataManager:
                     master_df = pd.concat([master_df, new_df]).dropna()
         self._store_data(data_df=master_df, filename='NLPinitiative_Master_Dataset', destpath=PROCESSED_DATA_DIR, overwrite=True)
 
+    # Data Preparation Functionality
+    #===================================================================================================================
+    def prepare_and_preprocess_dataset(self, filename: str = 'NLPinitiative_Master_Dataset.csv', srcdir: Path = PROCESSED_DATA_DIR, bin_model_type=DEF_MODEL, ml_model_type=DEF_MODEL):
+        raw_dataset = self.processor.dataset_from_file(filename, srcdir)
+        bin_ds, ml_ds = self.processor.bin_ml_dataset_split(raw_dataset)
+
+        bin_ds_metadata = self.processor.get_dataset_metadata(bin_ds)
+        bin_tkzr = self.processor.get_tokenizer(bin_model_type)
+        bin_encoded_ds = self.processor.preprocess(bin_ds, bin_ds_metadata['labels'], bin_tkzr)
+        bin_data_obj = DatasetObject(bin_ds, bin_encoded_ds, bin_ds_metadata, bin_tkzr)
+
+        ml_ds_metadata = self.processor.get_dataset_metadata(bin_ds)
+        ml_tkzr = self.processor.get_tokenizer(ml_model_type)
+        ml_encoded_ds = self.processor.preprocess(ml_ds, ml_ds_metadata['labels'], ml_tkzr)
+        ml_data_obj = DatasetObject(ml_ds, ml_encoded_ds, ml_ds_metadata, ml_tkzr)
+
+        return bin_data_obj, ml_data_obj
+
+    # Misc Helper Functions
+    #===================================================================================================================
+
     ## Stores the imported dataset within the data directory
     def _store_data(self, data_df: pd.DataFrame, filename: str, destpath: Path, overwrite=False):
         ## Handles situations of duplicate filenames
@@ -260,6 +294,40 @@ class DataManager:
         }
 
         return json_obj
+    
+class DatasetObject:
+    def __init__(self, dataset: DatasetDict, encoded_ds: DatasetDict, metadata: dict, tokenizer: PreTrainedTokenizer | PreTrainedTokenizerFast):
+        self._raw_dataset = dataset
+        self._encoded_dataset = encoded_ds
+        self._labels = metadata['labels']
+        self._lbl2idx = metadata['lbl2idx']
+        self._idx2lbl = metadata['idx2lbl']
+        self._tkzr = tokenizer
+
+    @property
+    def raw_dataset(self):
+        return self._raw_dataset
+    
+    @property
+    def encoded_dataset(self):
+        return self._encoded_dataset
+    
+    @property
+    def labels(self):
+        return self._labels
+    
+    @property
+    def lbl2idx(self):
+        return self._lbl2idx
+    
+    @property
+    def idx2lbl(self):
+        return self._idx2lbl
+    
+    @property
+    def tokenizer(self):
+        return self._tkzr
+
 
 class DatasetRecordManager:
     def __init__(self):
