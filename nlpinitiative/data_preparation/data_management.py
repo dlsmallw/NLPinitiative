@@ -1,0 +1,315 @@
+from nlpinitiative.data_preparation.data_normalize import DataNormalizer
+# from nlpinitiative.data_preparation.data_process import DataProcessor
+
+import os
+import pandas as pd
+from pathlib import Path
+from loguru import logger
+from urllib.parse import urlparse
+
+from nlpinitiative.config import (
+    DATA_DIR,
+    RAW_DATA_DIR,
+    INTERIM_DATA_DIR,
+    PROCESSED_DATA_DIR,
+    NORM_SCHEMA_DIR,
+    BINARY_LABELS,
+    CATEGORY_LABELS,
+)
+
+ACCEPTED_FILE_FORMATS = ['.csv', '.xlsx', '.json']
+
+class DataManager:
+    def __init__(self):
+        self.normalizer = DataNormalizer()
+        # self.processor = DataProcessor()
+        self.rec_mgr = DatasetRecordManager()
+
+    # Data Importing Functionality
+    #===================================================================================================================
+    ## Checks that the url provided is valid
+    def _is_valid_url(self, url):
+        if url:
+            parsed_url = urlparse(url)
+            return bool(parsed_url.scheme in ["http", "https", "ftp"])
+        else:
+            return False
+        
+    ## Generates a filename that will be used when importing new datasets
+    def _generate_import_filename(self, url: str):
+        def github():
+            parsed = urlparse(url)
+            path = os.path.splitext(parsed.path)[0][1:]
+            path_arr = path.split('/')
+            return '_'.join([path_arr[0], path_arr[1], path_arr[-1]])
+
+        if 'github' in url:
+            return github()
+        else:
+            split_arr = url.split('/')
+            return split_arr[-1]
+        
+    ## Converts URLs to a format that can be used for importing data from a remote source
+    ## NOTE: Currently only used for converting GitHub urls to the appropriate format
+    def _format_url(self, url: str):
+        def github():
+            base_url = 'https://raw.githubusercontent.com'
+            if base_url in url:
+                return url
+            else:
+                updated_url = url.replace('https://github.com', base_url)
+                updated_url = updated_url.replace('blob', 'refs/heads')
+                return updated_url
+            
+        if 'github' in url:
+            logger.info(f"Source url identified as GitHub URL, {url}")
+            formatted_url = github()
+            logger.info(f"URL Formatted, {formatted_url}")
+            return formatted_url
+        else:
+            return url
+        
+    ## Converts a dataset to a dataframe and also properly handles csv files with atypical delimiters
+    def file_to_df(self, source: str, ext: str) -> pd.DataFrame:
+        try:
+            match ext:
+                case '.csv':
+                    try:
+                        df = pd.read_csv(source)
+                    except:
+                        df = pd.read_csv(source, delimiter=';')
+                case '.xlsx':
+                    df = pd.read_excel(source)
+                case '.json':
+                    df = pd.read_json(source)
+                case _:
+                    df = None
+            return df
+        except Exception as e:
+            err_msg = f"Failed to import from source - {e}"
+            logger.error(err_msg)
+            raise Exception(err_msg)
+    
+    def import_data(self, import_type, source, dataset_name, is_third_party=True, local_ds_ref_url=None, overwrite=False):
+        ref_url = None
+        formatted_url = None
+        
+        match import_type:
+            case 'local':
+                if source is None or not os.path.exists(source):
+                    err_msg = 'Dataset filepath does not exist'
+                    logger.error(err_msg)
+                    raise Exception(err_msg)
+                
+                if is_third_party and not self._is_valid_url(local_ds_ref_url):
+                    err_msg = 'Locally imported 3rd party dataset imports must include a reference URL.'
+                    logger.error(err_msg)
+                    raise Exception(err_msg)
+                
+                ref_url = local_ds_ref_url if is_third_party else 'Custom Created Dataset'
+                
+                tail = os.path.split(source)[-1]
+                filename, ext = os.path.splitext(tail)[-2:]
+
+                if ext not in ACCEPTED_FILE_FORMATS:
+                    err_msg = 'Unsupported file type'
+                    logger.error(err_msg)
+                    raise Exception(err_msg)
+                
+                src = source
+            case 'external':
+                if not self._is_valid_url(source):
+                    err_msg = 'Invalid URL'
+                    logger.error(err_msg)
+                    raise Exception(err_msg)
+                
+                ref_url = source
+                formatted_url = self._format_url(ref_url)
+                filename = self._generate_import_filename(formatted_url)
+                path = urlparse(formatted_url).path
+                ext = os.path.splitext(path)[1]
+
+                if ext not in ACCEPTED_FILE_FORMATS:
+                    err_msg = 'Unsupported file type'
+                    logger.error(err_msg)
+                    raise Exception(err_msg)
+                
+                src = formatted_url
+            case _:
+                err_msg = 'Invalid import type'
+                logger.error(err_msg)
+                raise Exception(err_msg)
+            
+        if self.rec_mgr.dataset_src_exists(ref_url):
+            return
+
+        ds_df = self.file_to_df(src, ext)
+        self._store_data(data_df=ds_df, filename=filename, destpath=RAW_DATA_DIR, overwrite=overwrite)
+        self.rec_mgr.update(
+            ds_id=dataset_name,
+            src_url=ref_url,
+            dl_url=formatted_url,
+            raw_fn=f'{filename}.csv'
+        )
+
+        logger.success(f"Successfully imported {import_type} dataset from {source}.")
+        return ds_df
+    
+    # Data Normalization Functionality
+    #===================================================================================================================
+    ## Checks a filepath is valid
+    def _valid_filepath(self, path: Path):
+        return os.path.exists(path)
+
+    def normalize_dataset(self, ds_files: list[str], conv_schema_fn: str, output_fn):
+        for filename in ds_files:
+            if not self._valid_filepath((RAW_DATA_DIR / filename)):
+                err_msg = f'Invalid filepath for file, {filename} [{RAW_DATA_DIR / filename}].'
+                logger.error(err_msg)
+                raise Exception(err_msg)
+            
+        if not self._valid_filepath(NORM_SCHEMA_DIR / conv_schema_fn):
+            err_msg = f'Normalization schema file, {conv_schema_fn}, does not exist.'
+            logger.error(err_msg)
+            raise Exception(err_msg)
+        
+        if output_fn is None or not len(output_fn) > 0:
+            err_msg = f'Invalid output filename'
+            logger.error(err_msg)
+            raise Exception(err_msg)
+        
+        try:
+            normalized_df = self.normalizer.normalize_datasets(files=ds_files, cv_path=NORM_SCHEMA_DIR / conv_schema_fn)
+        except Exception as e:
+            err_msg = f'Failed to normalize file(s) - {e}'
+            logger.error(err_msg)
+            raise Exception(err_msg)
+        
+        self._store_data(normalized_df, output_fn, INTERIM_DATA_DIR)
+        for filename in ds_files:
+            row_vals = self.rec_mgr.get_entry_by_raw_fn(filename)
+            self.rec_mgr.update(
+                ds_id=row_vals[0],
+                src_url=row_vals[1],
+                dl_url=row_vals[2],
+                raw_fn=row_vals[3],
+                conv_schema_fn=conv_schema_fn,
+                conv_fn=f'{output_fn}.csv'
+            )
+        logger.success(f"Successfully normalized dataset files [{', '.join(ds_files)}]")
+        return normalized_df
+    
+    # Master Dataset Creation
+    #===================================================================================================================
+    def build_master_dataset(self):
+        master_df = None
+        for filename in os.listdir(INTERIM_DATA_DIR):
+            if filename != '.gitkeep':
+                _, ext = os.path.splitext(filename)
+                new_df = self.file_to_df(INTERIM_DATA_DIR / filename, ext)
+
+                if master_df is None:
+                    master_df = new_df
+                else:
+                    master_df = pd.concat([master_df, new_df]).dropna()
+        self._store_data(data_df=master_df, filename='NLPinitiative_Master_Dataset', destpath=PROCESSED_DATA_DIR, overwrite=True)
+
+    ## Stores the imported dataset within the data directory
+    def _store_data(self, data_df: pd.DataFrame, filename: str, destpath: Path, overwrite=False):
+        ## Handles situations of duplicate filenames
+        appended_num = 0
+        corrected_filename = f'{filename}.csv'
+
+        while not overwrite and os.path.exists(os.path.join(destpath, corrected_filename)):
+            appended_num += 1
+            corrected_filename = f'{filename}-{appended_num}.csv'
+        data_df.to_csv(path_or_buf=os.path.join(destpath, corrected_filename), index=False, mode='w')
+
+    def get_dataset_statistics(self, dataset_path):
+        def get_category_details():
+            cat_dict = dict()
+            for cat in CATEGORY_LABELS:
+                cat_dict[cat] = {
+                    'total_combined_value': dataset_df[cat].sum(),
+                    'num_positive_rows': len(dataset_df.loc[dataset_df[cat] > 0]),
+                    'num_gt_threshold': len(dataset_df.loc[dataset_df[cat] >= 0.5]),
+                    'num_rows_as_dominant_category': 0
+                }
+
+            for _, row in dataset_df.iterrows():
+                dominant_cat = None
+                dominant_val = 0
+
+                for cat in CATEGORY_LABELS:
+                    cat_val = row[cat]
+                    if cat_val > dominant_val:
+                        dominant_cat = cat
+                        dominant_val = cat_val
+
+                if dominant_cat is not None:
+                    cat_dict[dominant_cat]['num_rows_as_dominant_category'] += 1
+
+            return cat_dict
+        dataset_df = self.file_to_df(dataset_path, '.csv')
+
+        json_obj = {
+            'total_num_entries': len(dataset_df),
+            'num_positive_discriminatory': len(dataset_df.loc[dataset_df[BINARY_LABELS[0]] == 1]),
+            'num_negative_discriminatory': len(dataset_df.loc[dataset_df[BINARY_LABELS[0]] == 0]),
+            'category_stats': get_category_details()
+        }
+
+        return json_obj
+
+class DatasetRecordManager:
+    def __init__(self):
+        self.rec_df: pd.DataFrame = self.load_dataset_record()
+    
+    def load_dataset_record(self):
+        if os.path.exists(DATA_DIR / "dataset_record.csv"):
+            ds_rec_df = pd.read_csv(filepath_or_buffer=DATA_DIR / "dataset_record.csv")
+        else:
+            ds_rec_df = pd.DataFrame(columns=['Dataset ID', 'Dataset Reference URL', 'Dataset Download URL', 'Raw Dataset Filename', 'Conversion Schema Filename', 'Converted Filename'])
+            ds_rec_df.to_csv(DATA_DIR / "dataset_record.csv", index=False)
+        return ds_rec_df
+
+    def save_ds_record(self):
+        self.rec_df.to_csv(DATA_DIR / "dataset_record.csv", index=False)
+
+    def dataset_src_exists(self, src_url):
+        return len(self.rec_df[self.rec_df['Dataset Reference URL'] == src_url]) > 0
+
+    def get_ds_record_copy(self):
+        return self.rec_df.copy(deep=True)
+    
+    def update(self, ds_id, src_url=None, dl_url=None, raw_fn=None, conv_schema_fn=None, conv_fn=None):
+        if ds_id is not None:
+
+            new_df = pd.DataFrame({
+                'Dataset ID': [ds_id], 
+                'Dataset Reference URL': [src_url], 
+                'Dataset Download URL': [dl_url], 
+                'Raw Dataset Filename': [raw_fn], 
+                'Conversion Schema Filename': [conv_schema_fn], 
+                'Converted Filename': [conv_fn]
+            })
+
+            temp_df = pd.concat([self.rec_df, new_df]).drop_duplicates(subset=['Dataset ID', 'Dataset Reference URL'], keep='last')
+
+            self.rec_df = temp_df
+            self.save_ds_record()
+
+    def remove_entry(self, ds_id):
+        if ds_id is not None:
+            self.rec_df = self.rec_df[self.rec_df['Dataset ID'] != ds_id]
+            self.save_ds_record()
+
+    def get_entry_by_raw_fn(self, fn):
+        try:
+            row = tuple(self.rec_df[self.rec_df['Raw Dataset Filename'] == fn].values[0])
+            return row
+        except Exception as e:
+            err_msg = f'Failed to retrieve row of Dataset Record - {e}'
+            logger.error(err_msg)
+            raise Exception(err_msg)
+        

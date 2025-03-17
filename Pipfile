@@ -24,6 +24,7 @@ transformers = {extras = ["torch"], version = "*"}
 streamlit = "*"
 huggingface-hub = "*"
 joblib = "*"
+shortuuid = "*"
 
 [requires]
 python_version = "3.12"

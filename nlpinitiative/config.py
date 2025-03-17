@@ -14,11 +14,10 @@ DATA_DIR = PROJ_ROOT / "data"
 RAW_DATA_DIR = DATA_DIR / "raw"
 INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
-EXTERNAL_DATA_DIR = DATA_DIR / "external"
+NORM_SCHEMA_DIR = DATA_DIR / "normalization_schema"
 
 MODELS_DIR = PROJ_ROOT / "models"
 TOKENIZERS_DIR = PROJ_ROOT / "nlpinitiative" / "data_preparation" / "tokenizers"
-CONV_SCHEMA_DIR = PROJ_ROOT / "nlpinitiative" / "data_preparation" / "conversion_schema"
 
 REPORTS_DIR = PROJ_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
@@ -31,8 +30,9 @@ GENERATOR_BATCH_SIZE = 1000
 DEF_MODEL = "bert-base-uncased"
 
 # HF Hub Repositories
-BIN_REPO = 'dlsmallw/Binary-Classification-testing'
-ML_REPO = 'dlsmallw/Multilabel-Regression-testing'
+BIN_REPO = 'dlsmallw/NLPinitiative-Binary-Classification'
+ML_REPO = 'dlsmallw/NLPinitiative-Multilabel-Regression'
+DATASET_REPO = 'dlsmallw/NLPinitiative-Dataset'
 
 # dataset structure
 BINARY_LABELS = ["DISCRIMINATORY"]

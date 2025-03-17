@@ -1,2 +1,2 @@
 from nlpinitiative import config
-from nlpinitiative.data_preparation import data_preparation
+from nlpinitiative.data_preparation import data_process
