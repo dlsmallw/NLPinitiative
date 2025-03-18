@@ -1,5 +1,5 @@
 # Data
-/data/
+data/**
 /models/
 
 # Mac OS-specific storage files
