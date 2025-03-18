@@ -7,8 +7,12 @@ from pathlib import Path
 from loguru import logger
 from urllib.parse import urlparse
 
+import huggingface_hub as hfh
+from huggingface_hub import snapshot_download
+
 from nlpinitiative.config import (
     DATA_DIR,
+    DATASET_REPO,
     RAW_DATA_DIR,
     INTERIM_DATA_DIR,
     PROCESSED_DATA_DIR,
@@ -227,6 +231,14 @@ class DataManager:
                     master_df = pd.concat([master_df, new_df]).dropna()
         self._store_data(data_df=master_df, filename='NLPinitiative_Master_Dataset', destpath=PROCESSED_DATA_DIR, overwrite=True)
 
+    def pull_dataset_repo(self, token):
+        if token is not None:
+            hfh.snapshot_download(repo_id=DATASET_REPO, repo_type='dataset', local_dir=DATA_DIR, token=token)
+
+    def push_dataset_dir(self, token):
+        if token is not None:
+            hfh.upload_folder(repo_id=DATASET_REPO, repo_type='dataset', folder_path=DATA_DIR, token=token)
+
     # Data Preparation Functionality
     #===================================================================================================================
     def prepare_and_preprocess_dataset(self, filename: str = 'NLPinitiative_Master_Dataset.csv', srcdir: Path = PROCESSED_DATA_DIR, bin_model_type=DEF_MODEL, ml_model_type=DEF_MODEL):
@@ -294,6 +306,18 @@ class DataManager:
         }
 
         return json_obj
+    
+    def remove_file(self, filename: str, path: Path):
+        if os.path.exists(path / filename):
+            try:
+                os.remove(path / filename)
+                logger.success(f'Successfully removed file, {filename}.')
+            except Exception as e:
+                logger.error(f'Failed to remove file, {filename} - {e}')
+        else:
+            logger.info(f'File, {filename}, does not exist.')
+            
+
     
 class DatasetObject:
     def __init__(self, dataset: DatasetDict, encoded_ds: DatasetDict, metadata: dict, tokenizer: PreTrainedTokenizer | PreTrainedTokenizerFast):
