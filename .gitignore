@@ -1,5 +1,11 @@
 # Data
-data/**
+data/.cache
+data/interim/**
+data/processed/**
+data/raw/**
+data/.gitattributes
+
+# Models
 /models/
 
 # Mac OS-specific storage files

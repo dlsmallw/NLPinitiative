@@ -1,0 +1,12 @@
+{
+    "data_col": "comment",
+    "column_mapping": {
+        "DISCRIMINATORY": ["isHate"],
+        "GENDER": ["gender"],
+        "RACE": ["race", "national_origin"],
+        "SEXUALITY": ["sexual_orientation"],
+        "DISABILITY": ["disability"],
+        "RELIGION": ["religion"],
+        "UNSPECIFIED": []
+    }
+}

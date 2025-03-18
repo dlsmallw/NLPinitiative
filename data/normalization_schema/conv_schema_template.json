@@ -1,0 +1,11 @@
+{
+    "data_col": null,
+    "column_mapping": {
+        "GENDER": [],
+        "RACE":  [],
+        "SEXUALITY": [],
+        "DISABILITY": [],
+        "RELIGION":  [],
+        "UNSPECIFIED": []
+    }
+}
