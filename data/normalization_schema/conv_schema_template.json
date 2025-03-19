@@ -1,5 +1,7 @@
 {
     "data_col": null,
+    "mapping_type": null,
+    "single_column_label": null,
     "column_mapping": {
         "GENDER": [],
         "RACE":  [],

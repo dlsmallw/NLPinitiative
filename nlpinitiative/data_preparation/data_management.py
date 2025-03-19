@@ -157,10 +157,11 @@ class DataManager:
                 logger.error(err_msg)
                 raise Exception(err_msg)
             
-        if self.rec_mgr.dataset_src_exists(ref_url):
-            return
-
         ds_df = self.file_to_df(src, ext)
+        
+        if self.rec_mgr.dataset_src_exists(ref_url):
+            return ds_df
+        
         self._store_data(data_df=ds_df, filename=filename, destpath=RAW_DATA_DIR, overwrite=overwrite)
         self.rec_mgr.update(
             ds_id=dataset_name,

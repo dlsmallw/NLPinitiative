@@ -1,0 +1,13 @@
+{
+    "data_col": "HATE_SPEECH",
+    "mapping_type": "one2many",
+    "single_column_label": "TARGET",
+    "column_mapping": {
+        "GENDER": ["WOMEN"],
+        "RACE":  ["MIGRANTS", "POC", "JEWS"],
+        "SEXUALITY": ["LGBT+"],
+        "DISABILITY": ["DISABLED"],
+        "RELIGION":  ["MUSLIMS", "JEWS"],
+        "UNSPECIFIED": []
+    }
+}

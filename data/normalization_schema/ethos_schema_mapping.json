@@ -1,5 +1,7 @@
 {
     "data_col": "comment",
+    "mapping_type": "many2many",
+    "single_column_label": null,
     "column_mapping": {
         "DISCRIMINATORY": ["isHate"],
         "GENDER": ["gender"],
