@@ -1,0 +1,18 @@
+site_name: NLPInitiative
+# 
+site_author: ASU Capstone Group 8 / J Healthcare Initiative
+# 
+nav:
+  - Home: index.md
+  - Dataset Management: dataset-management.md
+
+theme:
+  name: readthedocs
+
+plugins:
+- search
+- mkdocstrings:
+    handlers:
+      python:
+        options:
+          docstring_style: google

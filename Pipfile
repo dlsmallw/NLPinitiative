@@ -25,6 +25,7 @@ streamlit = "*"
 huggingface-hub = "*"
 joblib = "*"
 shortuuid = "*"
+mkdocstrings-python = "*"
 
 [requires]
 python_version = "3.12"

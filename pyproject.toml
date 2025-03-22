@@ -7,7 +7,10 @@ name = "nlpinitiative"
 version = "0.0.1"
 description = "Codebase for training, evaluating and deploying an NLP model used to detect misinformation and/or discriminatory language targetting marginallized individuals or communities."
 authors = [
-  { name = "ASU Capstone Group 8 / J Initiative" },
+  { name = "ASU Capstone Group 8 / J-Healthcare Initiative" },
+]
+dependencies = [
+    "mkdocstrings-python",
 ]
 license = { file = "LICENSE" }
 readme = "README.md"
