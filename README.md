@@ -1,12 +1,13 @@
 # NLPInitiative
 
-<a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
-    <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
-</a>
+***
 
+## Project Details
+
+### Description
 Codebase for training, evaluating and deploying NLP models used to detect discriminatory language targeting marginallized individuals or communities and the type(s) of discrimination detected.
 
-## Project Organization
+### Organization
 
 ```
 ├── data
@@ -61,6 +62,79 @@ Codebase for training, evaluating and deploying NLP models used to detect discri
 │
 └── setup.sh            <- Bash script containing convenience commands for managing the project
 ```
+<span>
+    Based on the CookieCutter Data Science project structure template 
+    <a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
+        <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
+    </a>
+</span>
 
---------
+### Project Model and Dataset Repositories
+
+#### Model Repositories
+
+| Fine-tuned Model   | Base Model | Repository Link |
+| ------------------ | ---------- | --------------- |
+| Binary Classification Model | BERT | [NLPinitiative-Binary-Classification](https://huggingface.co/dlsmallw/NLPinitiative-Binary-Classification) |
+| Multilabel Regression Model | BERT | [NLPinitiative-Multilabel-Regression](https://huggingface.co/dlsmallw/NLPinitiative-Multilabel-Regression) |
+
+#### Dataset Repository
+
+|                    | Repository Link |
+| ------------------ | --------------- |
+| Dataset Repository | [NLPinitiative-Dataset](https://huggingface.co/datasets/dlsmallw/NLPinitiative-Dataset) |
+
+***
+
+## Project Setup
+
+The Makefile contains the central entry points for common tasks related to this project.
+
+***
+
+## Datasets Used
+
+### [Ethos](https://doi.org/10.1007/s40747-021-00608-2) - multi-lab**E**l ha**T**e speec**H** detecti**O**n data**S**et
+A collection consisting of binary and multilabel data containing hate speech from social media.
+
+#### Links
+ - [GitHub Repository](https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset)
+    - [Binary Dataset](https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset/blob/master/ethos/ethos_data/Ethos_Dataset_Binary.csv)
+    - [Multilabel Dataset](https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset/blob/master/ethos/ethos_data/Ethos_Dataset_Multi_Label.csv)
+
+#### BibTeX Reference
+```bibtex
+@article{mollas_ethos_2022,
+    title = {{ETHOS}: a multi-label hate speech detection dataset},
+    issn = {2198-6053},
+    url = {https://doi.org/10.1007/s40747-021-00608-2},
+    doi = {10.1007/s40747-021-00608-2},
+    journal = {Complex \& Intelligent Systems},
+    author = {Mollas, Ioannis and Chrysopoulou, Zoe and Karlos, Stamatis and Tsoumakas, Grigorios},
+    month = jan,
+    year = {2022},
+}
+```
+
+### [Multitarget-CONAN](https://doi.org/10.1007/s40747-021-00608-2) 
+Multi-Target CONAN is a dataset of hate speech/counter-narrative pairs for English comprising several hate targets, collected using a Human-in-the-Loop approach.
+
+#### Links
+ - [GitHub Repository](https://github.com/marcoguerini/CONAN)
+    - [Multitarget-CONAN Dataset](https://github.com/marcoguerini/CONAN/blob/master/Multitarget-CONAN/Multitarget-CONAN.csv)
+
+
+#### BibTeX Reference
+```bibtex
+@inproceedings{fanton-2021-human,
+  title="{Human-in-the-Loop for Data Collection: a Multi-Target Counter Narrative Dataset to Fight Online Hate Speech}",
+  author="{Fanton, Margherita and Bonaldi, Helena and Tekiroğlu, Serra Sinem and Guerini, Marco}",
+  booktitle = "Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics",
+  month = aug,
+  year = "2021",
+  publisher = "Association for Computational Linguistics",
+}
+```
+
+***
 
