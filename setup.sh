@@ -19,6 +19,20 @@ clean() {
 	find . -type d -name "__pycache__" -delete
 }
 
+docs() {
+    case $1 in
+        build)
+            mkdocs build
+            ;;
+        serve)
+            mkdocs serve
+            ;;
+        *)
+            log_error "Specify 'build' or 'serve'. For example: docs build"
+            ;;
+    esac
+}
+
 lint() {
     flake8 nlpinitiative
 	isort --check --diff --profile black nlpinitiative
