@@ -404,7 +404,6 @@ class DataManager:
 
     # Data Preparation Functionality
     # ===================================================================================================================
-    from data_management import DatasetContainer
 
     def prepare_and_preprocess_dataset(
         self,
@@ -412,7 +411,7 @@ class DataManager:
         srcdir: Path = PROCESSED_DATA_DIR,
         bin_model_type: str = DEF_MODEL,
         ml_model_type: str = DEF_MODEL,
-    ) -> tuple[DatasetContainer, DatasetContainer]:
+    ):
         """Preprocesses and tokenizes the specified dataset.
 
         Parameters
