@@ -3,17 +3,13 @@ Script file used for facillitating dataset preparation and preprocessing
 for use in model training.
 """
 
-from pathlib import Path
 import os
-
+from pathlib import Path
+from transformers import AutoTokenizer 
 from datasets import (
     Dataset,
     DatasetDict,
     load_dataset
-)
-
-from transformers import (
-    AutoTokenizer
 )
 
 from nlpinitiative.config import (
@@ -26,8 +22,29 @@ from nlpinitiative.config import (
 )
 
 class DataProcessor:
-    ## Loads a dataset from a specified file into a Dataset object
-    def dataset_from_file(self, filename: str, srcdir: Path = PROCESSED_DATA_DIR):
+    """A class used for performing preprocessing/tokenization."""
+
+    def dataset_from_file(self, filename: str, srcdir: Path = PROCESSED_DATA_DIR) -> DatasetDict:
+        """Loads a dataset from a specified file into a Dataset object.
+
+        Parameters
+        ----------
+        filename : str
+            The file name of the dataset to be loaded.
+        srcdir : Path, optional
+            The file path to the directory that the dataset is stored (default is data/processed).
+
+        Raises
+        ------
+        Exception
+            If the file specified does not exist.
+
+        Returns
+        -------
+        DatasetDict
+            The loaded dataset as a DatasetDict object.
+        """
+
         if filename and os.path.exists(os.path.join(srcdir, filename)):
             ext = os.path.splitext(filename)[-1]
             ext = ext.replace('.', '')
@@ -36,11 +53,34 @@ class DataProcessor:
         else:
             raise Exception('Invalid file name or file path')
         
-    ## Separates a dataset into a Training and Testing (evaluation) dataset pair and further
-    ## also handles formatting the datasets into a format that can be used for training the 
-    ## binary classification and multilabel regression models
-    def bin_ml_dataset_split(self, dataset: Dataset):
-        def get_bin_ds():
+    def bin_ml_dataset_split(self, dataset: Dataset) -> tuple[DatasetDict, DatasetDict]:
+        """Forms train/test split for use in the binary classification and multilabel regression models training.
+        
+        Takes a loaded dataset and splits it into two separate datasets with the required corresponding 
+        labels (the binary model dataset will only have the DISCRIMINATORY column, while the multilabel
+        regression model will only have the columns consisting of the discrimination categories). Additionally,
+        the function will split the prepared datasets into a train/test split.
+
+        Parameters
+        ----------
+        dataset : DatasetDict
+            The dataset to be processed.
+        
+        Returns
+        -------
+        DatasetDict
+            The prepared binary model and multilabel model dataset objects.
+        """
+
+        def get_bin_ds() -> DatasetDict:
+            """Prepares the binary model dataset.
+            
+            Returns
+            -------
+            DatasetDict
+                The prepared binary model dataset.
+            """
+
             train = dataset['train'].remove_columns(CATEGORY_LABELS)
             test = dataset['test'].remove_columns(CATEGORY_LABELS)
 
@@ -49,8 +89,30 @@ class DataProcessor:
                 'test': test.rename_column("DISCRIMINATORY", "label")
             })
         
-        def get_ml_regr_ds():
+        def get_ml_regr_ds() -> DatasetDict:
+            """Prepares the multilabel model dataset.
+            
+            Returns
+            -------
+            DatasetDict
+                The prepared multilabel model dataset.
+            """
+
             def combine_labels(ex_ds):
+                """Consolidates the mutiple dataset columns for categories into a single
+                column consisting of a list of the category data.
+
+                Parameters
+                ----------
+                ex_ds : DatasetDict
+                    The multilabel dataset to be corrected.
+            
+                Returns
+                -------
+                DatasetDict
+                    The corrected dataset.
+                """
+
                 ex_ds['labels'] = [
                     float(ex_ds["GENDER"]),
                     float(ex_ds["RACE"]),
@@ -74,12 +136,39 @@ class DataProcessor:
             })
         return get_bin_ds(), get_ml_regr_ds()
     
-    ## Initializes a tokenizer object for use in preprocessing the data
-    def get_tokenizer(self, model_type=DEF_MODEL):
+    def get_tokenizer(self, model_type: str = DEF_MODEL):
+        """Generates a tokenizer for the specified model type.
+
+        Parameters
+        ----------
+        model_type : str, optional
+            The model type for which the tokenizer is to be created.
+
+        Returns
+        -------
+        PreTrainedTokenizer | PreTrainedTokenizerFast
+            The tokenizer object.
+        """
+
         return AutoTokenizer.from_pretrained(model_type)
 
-    ## Generates dicts for easily fetching label based on id or id based on lbl
-    def get_dataset_metadata(self, dataset: Dataset):
+    def get_dataset_metadata(self, dataset: DatasetDict) -> dict:
+        """Gathers metadata for the given dataset into a dict for use in model training.
+        
+        Extracts dataset metadata to include a list of the datasets labels, a dict mapping 
+        the labels to their respective indices and a dict mapping the indices to the respective label.
+
+        Parameters
+        ----------
+        dataset : DatasetDict
+            The dataset to retrieve metadata from.
+
+        Returns
+        -------
+        dict
+            The metadata for the dataset within a dict object.
+        """
+
         lbls = [label for label in dataset["train"].features.keys() if label not in [DATASET_COLS[0]]]
         lbl2idx = {lbl:idx for idx, lbl in enumerate(lbls)}
         idx2lbl = {idx:lbl for idx, lbl in enumerate(lbls)}
@@ -90,9 +179,38 @@ class DataProcessor:
             'idx2lbl': idx2lbl
         }
 
-    ## Handles the process of preprocessing the textual data into a format that can be used in the model training
-    def preprocess(self, dataset, labels, tokenizer):
-        def preprocess_runner(data):
+    def preprocess(self, dataset: DatasetDict, labels: list[str], tokenizer) -> DatasetDict:
+        """Preprocesses and tokenizes a given dataset.
+
+        Parameters
+        ----------
+        dataset : DatasetDict
+            The dataset to to be preprocessed/tokenized.
+        labels : list[str]
+            The datasets labels.
+        tokenizer : PreTrainedTokenizer | PreTrainedTokenizerFast
+            The tokenizer used for tokenizing the dataset.
+
+        Returns
+        -------
+        DatasetDict
+            The preprocessed dataset.
+        """
+
+        def preprocess_runner(data: DatasetDict):
+            """Runner for performing tokenization.
+
+            Parameters
+            ----------
+            data : DatasetDict
+                The dataset to to be tokenized.
+
+            Returns
+            -------
+            DatasetDict
+                The tokenized dataset.
+            """
+
             return tokenizer(data[DATASET_COLS[0]], padding='max_length', truncation=True, max_length=128)
         
         if not labels:
@@ -103,3 +221,4 @@ class DataProcessor:
         encoded_ds = dataset.map(preprocess_runner, batched=True)
         encoded_ds.set_format("torch")
         return encoded_ds
+    

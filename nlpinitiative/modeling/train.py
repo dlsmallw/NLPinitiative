@@ -2,6 +2,7 @@
 Script file containing the logic for training NLP models.
 """
 
+from pathlib import Path
 from scipy.stats import pearsonr
 import numpy as np
 import torch
@@ -36,7 +37,27 @@ from transformers import (
 # Class for the regression model with a custom compute_loss method due to issues with the base class failing to properly 
 # compute loss for a regression model
 class RegressionTrainer(Trainer):
-    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
+    """A custom class for overriding the compute_loss method used in regression model training."""
+
+    def compute_loss(self, model, inputs, return_outputs: bool = False, **kwargs):
+        """Overridden comput_loss method necessary for training the multilabel regression model.
+
+        Parameters
+        ----------
+        model
+            The model being trained.
+        inputs
+            The dataset being used to train the model.
+        return_outputs : bool, optional
+            True if the outputs should be returned with the losses, False otherwise (default is False).
+        **kwargs
+            Any other additional parameters/configurations to use.
+
+        Returns
+        -------
+        tuple[Any, Any] | Any
+            A tuple consisting of the loss values and the corresponding outputs (if return_outputs is True), or just the loss values (if return_outputs is False).
+        """
         labels = inputs.get("labels")
         outputs = model(**inputs)
         logits = outputs.get("logits")
@@ -49,12 +70,22 @@ class RegressionTrainer(Trainer):
         loss = loss_fct(logits, labels)
 
         return (loss, outputs) if return_outputs else loss
-    
-
 
 # Function for computing metrics for evaluating binary classification training
-def compute_bin_metrics(eval_predicitions):
-    predictions, lbls = eval_predicitions
+def compute_bin_metrics(eval_predictions):
+    """Computes the metrics values resulting from the evaluation of the trained binary classification model.
+    
+    Parameters
+    ----------
+    eval_predictions
+        A tuple consisting of the label and prediction pair.
+
+    Returns
+    -------
+    dict[str, Any]
+        A dict consisting of the computed metrics values from evaluation of the trained binary classification model.
+    """
+    predictions, lbls = eval_predictions
     preds = predictions.argmax(axis=1)
     probs = torch.nn.functional.softmax(torch.tensor(predictions), dim=1).numpy()
 
@@ -75,6 +106,18 @@ def compute_bin_metrics(eval_predicitions):
 
 # Function for computing metrics for evaluating regression training
 def compute_reg_metrics(eval_predictions):
+    """Computes the metrics values resulting from the evaluation of the trained multilabel regression model.
+    
+    Parameters
+    ----------
+    eval_predictions
+        A tuple consisting of the labels corresponding prediction pair.
+
+    Returns
+    -------
+    dict[str, float]
+        A dict consisting of the computed metrics values from evaluation of the trained multilabel regression model.
+    """
     preds, lbls = eval_predictions
 
     mse = mean_squared_error(lbls, preds, multioutput='raw_values')
@@ -106,21 +149,56 @@ def compute_reg_metrics(eval_predictions):
 
 # Base function for generating training arguments
 def _train_args(
-    output_dir,
-    eval_strat,
-    save_strat,
-    logging_steps,
-    save_steps,
-    learn_rate,
-    batch_sz,
-    num_train_epochs,
-    weight_decay,
-    best_model_at_end,
-    best_model_metric,
-    greater_better):
+    output_dir: Path,
+    eval_strat: str,
+    save_strat: str,
+    logging_steps: int,
+    save_steps: int,
+    learn_rate: float,
+    batch_sz: int,
+    num_train_epochs: int,
+    weight_decay: float,
+    best_model_at_end: bool,
+    best_model_metric: str,
+    greater_better: bool
+):
+    """Generates training arguments for use in model training.
+    
+    Parameters
+    ----------
+    output_dir : Path
+        The output directory to store the trained model.
+    eval_strat : str
+        The evaluation strategy (i.e., steps/epochs).
+    save_strat : str
+        The save strategy (i.e., steps/epochs).
+    logging_steps : int
+        The periodicity for which logging will occur.
+    save_steps : int
+        The step periodicity for which a model will be saved.
+    learn_rate : float
+        A hyper parameter for determining model parameter adjustment during training.
+    batch_sz : int
+        The training data batch sizes.
+    num_train_epochs : int
+        The number of training epochs to be performed.
+    weight_decay : float
+        The weight decay to apply.
+    best_model_at_end : bool
+        True if the best model is to be saved at the completion of model training, False otherwise.
+    best_model_metric : str
+        The metric used for determining the best performing model.
+    greater_better : bool
+        True for if the better performing model should have the greater value (based on the specified metric), False otherwise.
+
+    Returns
+    -------
+    TrainingArguments
+        The training arguments object used for conducting model training.
+    """
 
     return TrainingArguments(
-        output_dir, 
+        output_dir=output_dir, 
         eval_strategy=eval_strat, 
         save_strategy=save_strat,
         logging_steps=logging_steps,
@@ -140,18 +218,53 @@ def _train_args(
 
 # Generates the training arguments used for training and evaluating the binary classification model
 def bin_train_args(
-        output_dir = MODELS_DIR / 'binary_classification',
-        eval_strat='steps',
-        save_strat='steps',
-        logging_steps=500,
-        save_steps=500,
-        learn_rate=2e-5,
-        batch_sz=8,
-        num_train_epochs=3,
-        weight_decay=0.01,
-        best_model_at_end=True,
-        best_model_metric='f1',
-        greater_better=True):
+        output_dir: Path = MODELS_DIR / 'binary_classification',
+        eval_strat: str = 'steps',
+        save_strat: str = 'steps',
+        logging_steps: int = 500,
+        save_steps: int = 500,
+        learn_rate: float = 2e-5,
+        batch_sz: int = 8,
+        num_train_epochs: int = 3,
+        weight_decay: float = 0.01,
+        best_model_at_end: bool = True,
+        best_model_metric: str = 'f1',
+        greater_better: bool = True
+):
+    """Generates training arguments for use in binary classification model training.
+    
+    Parameters
+    ----------
+    output_dir : str, optional
+        The output directory to store the trained model (default is models/binary_classification).
+    eval_strat : str, optional
+        The evaluation strategy (default is 'steps').
+    save_strat : str, optional
+        The save strategy (default is 'steps').
+    logging_steps : int, optional
+        The periodicity for which logging will occur (default is 500).
+    save_steps : int, optional
+        The step periodicity for which a model will be saved (default is 500).
+    learn_rate : float, optional
+        A hyper parameter for determining model parameter adjustment during training (default is 2e-5).
+    batch_sz : int, optional
+        The training data batch sizes (default is 8).
+    num_train_epochs : int, optional
+        The number of training epochs to be performed (default is 3).
+    weight_decay : float, optional
+        The weight decay to apply (default is 0.01).
+    best_model_at_end : bool, optional
+        True if the best model is to be saved at the completion of model training, False otherwise (default is True).
+    best_model_metric : str, optional
+        The metric used for determining the best performing model (default is 'f1').
+    greater_better : bool, optional
+        True for if the better performing model should have the greater value (based on the specified metric), False otherwise (default is True).
+
+    Returns
+    -------
+    TrainingArguments
+        The training arguments object used for conducting binary classification model training.
+    """
     
     return _train_args(
         output_dir,
@@ -170,18 +283,53 @@ def bin_train_args(
 
 # Generates the training arguments used for training and evaluating the multilabel regression model
 def ml_regr_train_args(
-        output_dir = MODELS_DIR / 'multilabel_regression',
-        eval_strat='steps',
-        save_strat='steps',
-        logging_steps=500,
-        save_steps=500,
-        learn_rate=2e-5,
-        batch_sz=8,
-        num_train_epochs=3,
-        weight_decay=0.01,
-        best_model_at_end=True,
-        best_model_metric='eval_mean_rmse',
-        greater_better=False):
+        output_dir: Path = MODELS_DIR / 'multilabel_regression',
+        eval_strat: str = 'steps',
+        save_strat: str = 'steps',
+        logging_steps: int = 500,
+        save_steps: int = 500,
+        learn_rate: float = 2e-5,
+        batch_sz: int = 8,
+        num_train_epochs: int = 3,
+        weight_decay: float = 0.01,
+        best_model_at_end: bool = True,
+        best_model_metric: str = 'eval_mean_rmse',
+        greater_better: bool = False
+):
+    """Generates training arguments for use in multilabel regression model training.
+    
+    Parameters
+    ----------
+    output_dir : str, optional
+        The output directory to store the trained model (default is models/multilabel_regression).
+    eval_strat : str, optional
+        The evaluation strategy (default is 'steps').
+    save_strat : str, optional
+        The save strategy (default is 'steps').
+    logging_steps : int, optional
+        The periodicity for which logging will occur (default is 500).
+    save_steps : int, optional
+        The step periodicity for which a model will be saved (default is 500).
+    learn_rate : float, optional
+        A hyper parameter for determining model parameter adjustment during training (default is 2e-5).
+    batch_sz : int, optional
+        The training data batch sizes (default is 8).
+    num_train_epochs : int, optional
+        The number of training epochs to be performed (default is 3).
+    weight_decay : float, optional
+        The weight decay to apply (default is 0.01).
+    best_model_at_end : bool, optional
+        True if the best model is to be saved at the completion of model training, False otherwise (default is True).
+    best_model_metric : str, optional
+        The metric used for determining the best performing model (default is 'eval_mean_rmse').
+    greater_better : bool, optional
+        True for if the better performing model should have the greater value (based on the specified metric), False otherwise (default is False).
+
+    Returns
+    -------
+    TrainingArguments
+        The training arguments object used for conducting multilabel regression model training.
+    """
     
     return _train_args(
         output_dir,
@@ -199,19 +347,62 @@ def ml_regr_train_args(
     )
 
 # Generates a model object for handling binary classification
-def get_bin_model(model_name=DEF_MODEL):
+def get_bin_model(model_name: str = DEF_MODEL):
+    """Generates a model object to be trained for binary classification.
+    
+    Parameters
+    ----------
+    model_name: str, optional
+        The name of the pretrained model to be fine-tuned (default is the DEF_MODEL specified in nlpinitiative/config.py).
+
+    Returns
+    -------
+    PreTrainedModel
+        The corresponding pretrained subclass model object for binary classification.
+    """
+
     return AutoModelForSequenceClassification.from_pretrained(
         model_name
     )
 
 # Generates a model obect for handling multilabel regression
-def get_ml_model(model_name=DEF_MODEL):
+def get_ml_model(model_name: str = DEF_MODEL):
+    """Generates a model object to be trained for multilabel regression.
+    
+    Parameters
+    ----------
+    model_name: str, optional
+        The name of the pretrained model to be fine-tuned (default is the DEF_MODEL specified in nlpinitiative/config.py).
+
+    Returns
+    -------
+    PreTrainedModel
+        The corresponding pretrained subclass model object for multilabel regression.
+    """
+
     return AutoModelForSequenceClassification.from_pretrained(
         model_name,
         num_labels=len(CATEGORY_LABELS)
     )
 
-def train(bin_trainer: Trainer, ml_trainer: Trainer, token=None):
+def train(bin_trainer: Trainer, ml_trainer: Trainer, token: str = None):
+    """Performs training on the binary classification and multilabel regression models.
+    
+    Parameters
+    ----------
+    bin_trainer : Trainer
+        The trainer object for performing binary classification model training.
+    ml_trainer : Trainer
+        The trainer object for performing multilabel regression model training.
+    token : str, optional
+            A Hugging Face token with read/write access privileges to allow exporting the trained models (default is None).
+
+    Returns
+    -------
+    tuple[dict[str, float], dict[str, float]]
+        A tuple consisting of the dicts containing the metrics evaluation results for the binary classification and multilabel regression model training.
+    """
+
     bin_trainer.train()
     bin_model = bin_trainer.model
     bin_model.save_pretrained(save_directory=MODELS_DIR / 'binary_classification' / 'best_model')
@@ -221,14 +412,34 @@ def train(bin_trainer: Trainer, ml_trainer: Trainer, token=None):
     ml_model.save_pretrained(save_directory=MODELS_DIR / 'multilabel_regression' / 'best_model')
     
     if token:
-        upload_best_models(token)
+        upload_best_models(token=token)
 
     bin_eval = bin_trainer.evaluate()
     ml_eval = ml_trainer.evaluate()
     return bin_eval, ml_eval
 
-def upload_best_models(token):
-    def load_model(path):
+def upload_best_models(token: str):
+    """Pushes the current best performing binary classification and multilabel regression models to their respective linked Hugging Face Model Repositories.
+    
+    Parameters
+    ----------
+    token : str, optional
+        A Hugging Face token with read/write access privileges to allow exporting the trained models (default is None).
+    """
+
+    def load_model(path: Path):
+        """Initializes a PreTrainedModel object from the specified model path.
+        
+        Parameters
+        ----------
+        path : Path
+            The file path to the model.
+            
+        Returns
+        -------
+        PreTrainedModel
+            An instantiated PreTrainedModel object. 
+        """
         with open(path / 'config.json') as config_file:
             config_json = json.load(config_file)
         model_type = config_json['model_type']

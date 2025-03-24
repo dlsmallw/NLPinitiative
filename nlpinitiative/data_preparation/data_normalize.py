@@ -5,13 +5,9 @@ merging complimentary datasets (datasets that come from the same source that may
 differences in labeling scheme).
 """
 
-from typing_extensions import Annotated
-from loguru import logger
 from pathlib import Path
 import pandas as pd
-import typer
 import json
-import os
 
 from nlpinitiative.config import (
     DATASET_COLS,
@@ -19,24 +15,79 @@ from nlpinitiative.config import (
     RAW_DATA_DIR
 )
 
-app = typer.Typer()
-
 class DataNormalizer:
-    ## Handles merging complimentary datasets into a single dataset
+    """A class used to normalize datasets to the format utilized for model training."""
+
     def _merge_dataframes(self, df1: pd.DataFrame, df2: pd.DataFrame, merge_col: str) -> pd.DataFrame:
+        """Merges two Pandas DataFrames.
+
+        Parameters
+        ----------
+        df1 : DataFrame
+            DataFrame to be merged.
+        df2 : DataFrame
+            DataFrame to be merged.
+        merge_col : str
+            The column for which the DataFrames are to be merged on.
+
+        Returns
+        -------
+        DataFrame
+            The resulting merged DataFrame.
+        """
+
         new_df = pd.merge(df1, df2, on=merge_col, how='left').fillna(0.0)
         return new_df
 
-    ## Loads a csv file into a dataframe object
     def _load_src_file(self, path: Path) -> pd.DataFrame:
+        """Load a source file into a Pandas DataFrame.
+
+        Parameters
+        ----------
+        path : Path
+            The file path to the source file.
+
+        Returns
+        ------- 
+        DataFrame
+            The source file data in a DataFrame.
+        """
+
         return pd.read_csv(path)
 
-    ## Loads the dataset conversion scheme that will be used for normalizing a dataset
     def _load_conv_schema(self, path: Path) -> dict[str:str]:
+        """Loads the dataset conversion schema that will be used for normalizing a dataset.
+
+        Parameters
+        ----------
+        path : Path
+            The file path to the JSON conversion schema.
+
+        Returns
+        ------- 
+        dict[str:str]
+            The conversion schema as a JSON object.
+        """
+
         return json.load(open(path, 'r'))
 
     ## Handles the process for normalizing the third-party datasets
-    def normalize_datasets(self, files: list[Path], cv_path: Path):
+    def normalize_datasets(self, files: list[Path], cv_path: Path) -> pd.DataFrame:
+        """Loads, merges and normalizes one or more datasets to the schema used for model training.
+
+        Parameters
+        ----------
+        files : list[Path]
+            A list of dataset file paths that are to be merged and normalized.
+        cv_path : Path
+            The file path to the JSON conversion schema.
+
+        Returns
+        -------
+        Dataframe
+            The normalized dataset(s) as a DataFrame.
+        """
+
         num_files = len(files)
         src_df = None
         for i in range(0, num_files):
@@ -112,3 +163,4 @@ class DataNormalizer:
                     pass
             master_df = pd.DataFrame(data=data, columns=DATASET_COLS)
         return master_df
+    

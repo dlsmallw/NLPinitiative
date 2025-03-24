@@ -4,57 +4,62 @@
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
 
-Codebase for training, evaluating and deploying an NLP model used to detect misinformation and/or discriminatory language targetting marginallized individuals or communities.
+Codebase for training, evaluating and deploying NLP models used to detect discriminatory language targeting marginallized individuals or communities and the type(s) of discrimination detected.
 
 ## Project Organization
 
 ```
-├── LICENSE            <- Open-source license if one is chosen
-├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
-├── README.md          <- The top-level README for developers using this project.
 ├── data
-│   ├── external       <- Data from third party sources.
-│   ├── interim        <- Intermediate data that has been transformed.
-│   ├── processed      <- The final, canonical data sets for modeling.
-│   └── raw            <- The original, immutable data dump.
+│   ├── interim                 <- Intermediate datasets that have been normalized
+│   ├── normalization_schema    <- The schema used for normalizing 3rd party datasets
+│   ├── processed               <- The final merged dataset consisting of all normalized datasets
+│   └── raw                     <- The original, raw datasets prior to normalization
 │
-├── docs               <- A default mkdocs project; see www.mkdocs.org for details
+├── docs            <- A directory containing documentation used for generating and serving 
+│                      project documentation
 │
-├── models             <- Trained and serialized models, model predictions, or model summaries
+├── models          <- Trained and serialized models, model predictions, or model summaries
+│   │
+│   ├── binary_classification        <- Trained and serialized binary classification 
+│   │                                   models/model predictions/model summaries
+│   └── multilabel_regression        <- Trained and serialized multilabel regression 
+│                                       models/model predictions/model summaries
 │
-├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-│                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`.
+├── nlpinitiative   <- Source code for use in this project
+│   │
+│   ├── __init__.py             <- Makes nlpinitiative a Python module
+│   ├── config.py               <- Store useful variables and configuration
+│   └── modeling                <- Source code for model training and inference
+│       │                
+│       ├── __init__.py         <- Makes modeling a Python module
+│       ├── predict.py          <- Code to run model inference with trained models          
+│       └── train.py            <- Code to train models
 │
-├── pyproject.toml     <- Project configuration file with package metadata for 
-│                         nlpinitiative and configuration for tools like black
+├── notebooks           <- Directory containing Jupyter notebooks detailing research, testing and 
+│                          example usage of project modules 
 │
-├── references         <- Data dictionaries, manuals, and all other explanatory materials.
+├── references          <- Directory containing Data dictionaries, manuals, and all other 
+│                          explanatory materials
 │
-├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-│   └── figures        <- Generated graphics and figures to be used in reporting
+├── LICENSE             <- Open-source license if one is chosen
 │
-├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-│                         generated with `pip freeze > requirements.txt`
+├── Makefile            <- Makefile with convenience commands 
 │
-├── setup.cfg          <- Configuration file for flake8
+├── mkdocs.yml          <- mkdocs project configuration
 │
-└── nlpinitiative   <- Source code for use in this project.
-    │
-    ├── __init__.py             <- Makes nlpinitiative a Python module
-    │
-    ├── config.py               <- Store useful variables and configuration
-    │
-    ├── dataset.py              <- Scripts to download or generate data
-    │
-    ├── features.py             <- Code to create features for modeling
-    │
-    ├── modeling                
-    │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models          
-    │   └── train.py            <- Code to train models
-    │
-    └── plots.py                <- Code to create visualizations
+├── Pipfile             <- The project dependency file for reproducing the analysis environment, 
+│                          e.g., generated with `pipenv install`
+│
+├── Pipfile.lock        <- Locked file containing hashes for dependencies
+│
+├── pyproject.toml      <- Project configuration file with package metadata for nlpinitiative and 
+│                          configuration for tools like black
+│
+├── README.md           <- The top-level README for developers using this project
+│
+├── setup.cfg           <- Configuration file for flake8
+│
+└── setup.sh            <- Bash script containing convenience commands for managing the project
 ```
 
 --------
