@@ -30,9 +30,9 @@ GENERATOR_BATCH_SIZE = 1000
 DEF_MODEL = "bert-base-uncased"
 
 # HF Hub Repositories
-BIN_REPO = 'dlsmallw/NLPinitiative-Binary-Classification'
-ML_REPO = 'dlsmallw/NLPinitiative-Multilabel-Regression'
-DATASET_REPO = 'dlsmallw/NLPinitiative-Dataset'
+BIN_REPO = "dlsmallw/NLPinitiative-Binary-Classification"
+ML_REPO = "dlsmallw/NLPinitiative-Multilabel-Regression"
+DATASET_REPO = "dlsmallw/NLPinitiative-Dataset"
 
 # dataset structure
 BINARY_LABELS = ["DISCRIMINATORY"]

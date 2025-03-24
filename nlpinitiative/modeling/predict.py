@@ -5,22 +5,20 @@ Script file used for performing inference with an existing model.
 import torch
 import json
 from pathlib import Path
-from transformers import (
-    AutoTokenizer,
-    AutoModelForSequenceClassification
-)
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 from nlpinitiative.config import MODELS_DIR
+
 
 class InferenceHandler:
     """A class that handles performing inference using the trained binary classification and multilabel regression models."""
 
     def __init__(
-            self, 
-            bin_model_path: Path = MODELS_DIR / 'binary_classification/best_model', 
-            ml_regr_model_path: Path = MODELS_DIR / 'multilabel_regression/best_model'
-        ):
-        """ Constructor for instantiating an InferenceHandler object.
+        self,
+        bin_model_path: Path = MODELS_DIR / "binary_classification/best_model",
+        ml_regr_model_path: Path = MODELS_DIR / "multilabel_regression/best_model",
+    ):
+        """Constructor for instantiating an InferenceHandler object.
 
         Parameters
         ----------
@@ -31,7 +29,9 @@ class InferenceHandler:
         """
 
         self.bin_tokenizer, self.bin_model = self.init_model_and_tokenizer(bin_model_path)
-        self.ml_regr_tokenizer, self.ml_regr_model = self.init_model_and_tokenizer(ml_regr_model_path)
+        self.ml_regr_tokenizer, self.ml_regr_model = self.init_model_and_tokenizer(
+            ml_regr_model_path
+        )
 
     def init_model_and_tokenizer(self, model_path: Path):
         """Initializes a model and tokenizer for use in inference using the models path.
@@ -47,13 +47,15 @@ class InferenceHandler:
             A tuple containing the tokenizer and model objects.
         """
 
-        with open(model_path / 'config.json') as config_file:
+        with open(model_path / "config.json") as config_file:
             config_json = json.load(config_file)
-        model_name = config_json['_name_or_path']
-        model_type = config_json['model_type']
+        model_name = config_json["_name_or_path"]
+        model_type = config_json["model_type"]
 
         tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForSequenceClassification.from_pretrained(model_path, model_type=model_type)
+        model = AutoModelForSequenceClassification.from_pretrained(
+            model_path, model_type=model_type
+        )
         model.eval()
 
         return tokenizer, model
@@ -72,7 +74,9 @@ class InferenceHandler:
             The preprocessed and tokenized input text.
         """
 
-        bin_tokenized_input = self.bin_tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
+        bin_tokenized_input = self.bin_tokenizer(
+            text, return_tensors="pt", truncation=True, padding=True, max_length=512
+        )
         return bin_tokenized_input
 
     def encode_multilabel(self, text: str):
@@ -89,7 +93,9 @@ class InferenceHandler:
             The preprocessed and tokenized input text.
         """
 
-        ml_tokenized_input = self.ml_regr_tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
+        ml_tokenized_input = self.ml_regr_tokenizer(
+            text, return_tensors="pt", truncation=True, padding=True, max_length=512
+        )
         return ml_tokenized_input
 
     def encode_input(self, text: str):
@@ -109,12 +115,12 @@ class InferenceHandler:
         bin_inputs = self.encode_binary(text)
         ml_inputs = self.encode_multilabel(text)
         return bin_inputs, ml_inputs
-    
+
     def classify_text(self, text: str):
         """Performs inference on the input text to determine the binary classification and the multilabel regression for the categories.
 
-        Determines whether the text is discriminatory. If it is discriminatory, it will then perform regression on the input text to determine the 
-        assesed percentage that each category applies. 
+        Determines whether the text is discriminatory. If it is discriminatory, it will then perform regression on the input text to determine the
+        assesed percentage that each category applies.
 
         Parameters
         ----------
@@ -128,31 +134,31 @@ class InferenceHandler:
         """
 
         res_obj = {
-            'raw_text': text,
-            'text_sentiment': None,
-            'numerical_sentiment': None,
-            'category_sentiments': {
-                'Gender': None,
-                'Race': None,
-                'Sexuality': None,  
-                'Disability': None,
-                'Religion': None,  
-                'Unspecified': None
-            }
+            "raw_text": text,
+            "text_sentiment": None,
+            "numerical_sentiment": None,
+            "category_sentiments": {
+                "Gender": None,
+                "Race": None,
+                "Sexuality": None,
+                "Disability": None,
+                "Religion": None,
+                "Unspecified": None,
+            },
         }
 
         text_prediction, pred_class = self.discriminatory_inference(text)
-        res_obj['text_sentiment'] = text_prediction
-        res_obj['numerical_sentiment'] = pred_class
+        res_obj["text_sentiment"] = text_prediction
+        res_obj["numerical_sentiment"] = pred_class
 
         if pred_class == 1:
             ml_infer_results = self.category_inference(text)
 
-            for idx, key in enumerate(res_obj['category_sentiments'].keys()):
-                res_obj['category_sentiments'][key] = ml_infer_results[idx]
+            for idx, key in enumerate(res_obj["category_sentiments"].keys()):
+                res_obj["category_sentiments"][key] = ml_infer_results[idx]
 
         return res_obj
-    
+
     def discriminatory_inference(self, text: str):
         """Performs inference on the input text to determine the binary classification.
 
@@ -164,7 +170,7 @@ class InferenceHandler:
         Returns
         -------
         tuple[str, Number]
-            A tuple consisting of the string classification (Discriminatory or Non-Discriminatory) and the numeric prediction class (1 or 0). 
+            A tuple consisting of the string classification (Discriminatory or Non-Discriminatory) and the numeric prediction class (1 or 0).
         """
 
         bin_inputs = self.encode_binary(text)
@@ -178,7 +184,7 @@ class InferenceHandler:
         bin_text_pred = bin_label_map[pred_class]
 
         return bin_text_pred, pred_class
-    
+
     def category_inference(self, text: str):
         """Performs inference on the input text to determine the regression values for the categories of discrimination.
 
@@ -190,14 +196,14 @@ class InferenceHandler:
         Returns
         -------
         list[float]
-            A tuple consisting of the string classification (Discriminatory or Non-Discriminatory) and the numeric prediction class (1 or 0). 
+            A tuple consisting of the string classification (Discriminatory or Non-Discriminatory) and the numeric prediction class (1 or 0).
         """
 
         ml_inputs = self.encode_multilabel(text)
 
         with torch.no_grad():
             ml_outputs = self.ml_regr_model(**ml_inputs).logits
-        
+
         ml_op_list = ml_outputs.squeeze().tolist()
 
         results = []
@@ -205,4 +211,3 @@ class InferenceHandler:
             results.append(min(1.0, max(0.0, item)))
 
         return results
-    

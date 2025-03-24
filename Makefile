@@ -10,7 +10,6 @@ PYTHON_INTERPRETER = python
 # COMMANDS                                                                      #
 #################################################################################
 
-
 ## Install Python Dependencies
 .PHONY: requirements
 requirements:
@@ -38,25 +37,6 @@ format:
 .PHONY: create_environment
 create_environment:
 	pipenv --python $(PYTHON_VERSION)
-
-#################################################################################
-# PROJECT RULES                                                                 #
-#################################################################################
-## Import Raw Data from source
-.PHONY: data_import
-data_import: requirements
-	$(PYTHON_INTERPRETER) nlpinitiative/data_preparation/data_import.py $(FLAG_ARG) $(FILEPATH_ARG)
-
-## Normalize dataset to standard schema
-.PHONY: data_normalize
-data_normalize: requirements
-	$(PYTHON_INTERPRETER) nlpinitiative/data_preparation/data_normalize.py $(ARGS)
-
-## Make Dataset
-.PHONY: data
-data: requirements
-	$(PYTHON_INTERPRETER) nlpinitiative/data_preparation/data_preparation.py $(FLAG_ARG) $(FILEPATH_ARG)
-
 
 #################################################################################
 # Self Documenting Commands                                                     #
