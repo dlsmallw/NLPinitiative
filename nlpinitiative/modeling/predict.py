@@ -34,7 +34,6 @@ class InferenceHandler:
         self.ml_regr_tokenizer, self.ml_regr_model = self.init_model_and_tokenizer(
             ml_regr_model_path
         )
-        
 
     def init_model_and_tokenizer(self, model_path: Path):
         """Initializes a model and tokenizer for use in inference using the models path.
@@ -136,10 +135,7 @@ class InferenceHandler:
             The resulting classification and regression values for each category.
         """
 
-        result = {
-            'text_input': text,
-            'results': []
-        }
+        result = {"text_input": text, "results": []}
 
         sent_res_arr = []
         sentences = sent_tokenize(text)
@@ -147,12 +143,12 @@ class InferenceHandler:
             text_prediction, pred_class = self.discriminatory_inference(sent)
 
             sent_result = {
-                'sentence': sent,
-                'binary_classification': {
-                    'classification': text_prediction,
-                    'prediction_class': pred_class
+                "sentence": sent,
+                "binary_classification": {
+                    "classification": text_prediction,
+                    "prediction_class": pred_class,
                 },
-                'multilabel_regression': None
+                "multilabel_regression": None,
             }
 
             if pred_class == 1:
@@ -162,17 +158,17 @@ class InferenceHandler:
                     "Sexuality": None,
                     "Disability": None,
                     "Religion": None,
-                    "Unspecified": None
+                    "Unspecified": None,
                 }
 
                 ml_infer_results = self.category_inference(sent)
                 for idx, key in enumerate(ml_results.keys()):
                     ml_results[key] = min(max(ml_infer_results[idx], 0.0), 1.0)
 
-                sent_result['multilabel_regression'] = ml_results
+                sent_result["multilabel_regression"] = ml_results
             sent_res_arr.append(sent_result)
 
-        result['results'] = sent_res_arr
+        result["results"] = sent_res_arr
         return result
 
     def discriminatory_inference(self, text: str):
