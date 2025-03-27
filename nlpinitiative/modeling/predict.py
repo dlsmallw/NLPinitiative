@@ -4,6 +4,8 @@ Script file used for performing inference with an existing model.
 
 import torch
 import json
+import nltk
+from nltk import sent_tokenize
 from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
@@ -32,6 +34,7 @@ class InferenceHandler:
         self.ml_regr_tokenizer, self.ml_regr_model = self.init_model_and_tokenizer(
             ml_regr_model_path
         )
+        
 
     def init_model_and_tokenizer(self, model_path: Path):
         """Initializes a model and tokenizer for use in inference using the models path.
@@ -133,31 +136,44 @@ class InferenceHandler:
             The resulting classification and regression values for each category.
         """
 
-        res_obj = {
-            "raw_text": text,
-            "text_sentiment": None,
-            "numerical_sentiment": None,
-            "category_sentiments": {
-                "Gender": None,
-                "Race": None,
-                "Sexuality": None,
-                "Disability": None,
-                "Religion": None,
-                "Unspecified": None,
-            },
+        result = {
+            'text_input': text,
+            'results': []
         }
 
-        text_prediction, pred_class = self.discriminatory_inference(text)
-        res_obj["text_sentiment"] = text_prediction
-        res_obj["numerical_sentiment"] = pred_class
+        sent_res_arr = []
+        sentences = sent_tokenize(text)
+        for sent in sentences:
+            text_prediction, pred_class = self.discriminatory_inference(sent)
 
-        if pred_class == 1:
-            ml_infer_results = self.category_inference(text)
+            sent_result = {
+                'sentence': sent,
+                'binary_classification': {
+                    'classification': text_prediction,
+                    'prediction_class': pred_class
+                },
+                'multilabel_regression': None
+            }
 
-            for idx, key in enumerate(res_obj["category_sentiments"].keys()):
-                res_obj["category_sentiments"][key] = ml_infer_results[idx]
+            if pred_class == 1:
+                ml_results = {
+                    "Gender": None,
+                    "Race": None,
+                    "Sexuality": None,
+                    "Disability": None,
+                    "Religion": None,
+                    "Unspecified": None
+                }
 
-        return res_obj
+                ml_infer_results = self.category_inference(sent)
+                for idx, key in enumerate(ml_results.keys()):
+                    ml_results[key] = min(max(ml_infer_results[idx], 0.0), 1.0)
+
+                sent_result['multilabel_regression'] = ml_results
+            sent_res_arr.append(sent_result)
+
+        result['results'] = sent_res_arr
+        return result
 
     def discriminatory_inference(self, text: str):
         """Performs inference on the input text to determine the binary classification.

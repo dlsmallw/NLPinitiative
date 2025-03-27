@@ -26,6 +26,7 @@ huggingface-hub = "*"
 joblib = "*"
 shortuuid = "*"
 mkdocstrings-python = "*"
+nltk = "*"
 
 [requires]
 python_version = "3.12"
