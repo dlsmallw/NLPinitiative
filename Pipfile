@@ -4,6 +4,34 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+black = "*"
+flake8 = "*"
+ipython = "*"
+isort = "*"
+jupyterlab = "*"
+loguru = "*"
+matplotlib = "*"
+mkdocs = "*"
+notebook = "*"
+numpy = "*"
+pandas = "*"
+pip = "*"
+python-dotenv = "*"
+scikit-learn = "*"
+tqdm = "*"
+typer = "*"
+"nlpinitiative" ={editable = true, path = "."}
+tokenizers = "*"
+datasets = "*"
+jupyter = "*"
+torch = "*"
+transformers = {extras = ["torch"], version = "*"}
+streamlit = "*"
+huggingface-hub = "*"
+joblib = "*"
+shortuuid = "*"
+mkdocstrings-python = "*"
+nltk = "*"
 
 [dev-packages]
 
