@@ -12,7 +12,10 @@ build() {
 clean() {
     if [ -n "$VIRTUAL_ENV" ]; then
         deactivate
-        find . -type d -name ".venv" -delete
+    fi
+
+    if [ -d ./.venv ]; then
+        rm -rf ./.venv
     fi
 
     find . -type f -name "*.py[co]" -delete
