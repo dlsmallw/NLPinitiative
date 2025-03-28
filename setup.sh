@@ -32,6 +32,7 @@ docs() {
             ;;
         deploy)
             mkdocs gh-deploy --force
+            ;;
         *)
             log_error "Specify 'build', 'serve' or 'deploy'. For example: docs build"
             ;;
