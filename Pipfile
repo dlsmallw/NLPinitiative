@@ -26,10 +26,8 @@ datasets = "*"
 jupyter = "*"
 torch = "*"
 transformers = {extras = ["torch"], version = "*"}
-streamlit = "*"
 huggingface-hub = "*"
 joblib = "*"
-shortuuid = "*"
 mkdocstrings-python = "*"
 nltk = "*"
 
