@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="None" /><meta name="author" content="ASU Capstone Group 8 / J Healthcare Initiative" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>NLPInitiative</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Home";
+        var mkdocs_page_input_path = "index.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="." class="icon icon-home"> NLPInitiative
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Home</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#project-details">Project Details</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#description">Description</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#organization">Organization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#project-model-and-dataset-repositories">Project Model and Dataset Repositories</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#model-repositories">Model Repositories</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#dataset-repository">Dataset Repository</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#project-setup">Project Setup</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#datasets-used">Datasets Used</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#ethos-multi-label-hate-speech-detection-dataset">Ethos - multi-labEl haTe speecH detectiOn dataSet</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#links">Links</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bibtex-reference">BibTeX Reference</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#multitarget-conan">Multitarget-CONAN</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#links_1">Links</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bibtex-reference_1">BibTeX Reference</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="dataset-management/">Dataset Management</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="model-management/">Model Training, Evaluation and Inference</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href=".">NLPInitiative</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Home</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="nlpinitiative-documentation">NLPInitiative Documentation</h1>
+<hr />
+<h2 id="project-details">Project Details</h2>
+<h3 id="description">Description</h3>
+<p>Codebase for training, evaluating and deploying NLP models used to detect discriminatory language targeting marginallized individuals or communities and the type(s) of discrimination detected.</p>
+<h3 id="organization">Organization</h3>
+<pre><code>├── data
+│   ├── interim                 &lt;- Intermediate datasets that have been normalized
+│   ├── normalization_schema    &lt;- The schema used for normalizing 3rd party datasets
+│   ├── processed               &lt;- The final merged dataset consisting of all normalized datasets
+│   └── raw                     &lt;- The original, raw datasets prior to normalization
+│
+├── docs            &lt;- A directory containing documentation used for generating and serving 
+│                      project documentation
+│
+├── models          &lt;- Trained and serialized models, model predictions, or model summaries
+│   │
+│   ├── binary_classification        &lt;- Trained and serialized binary classification 
+│   │                                   models/model predictions/model summaries
+│   └── multilabel_regression        &lt;- Trained and serialized multilabel regression 
+│                                       models/model predictions/model summaries
+│
+├── nlpinitiative   &lt;- Source code for use in this project
+│   │
+│   ├── __init__.py             &lt;- Makes nlpinitiative a Python module
+│   ├── config.py               &lt;- Store useful variables and configuration
+│   └── modeling                &lt;- Source code for model training and inference
+│       │                
+│       ├── __init__.py         &lt;- Makes modeling a Python module
+│       ├── predict.py          &lt;- Code to run model inference with trained models          
+│       └── train.py            &lt;- Code to train models
+│
+├── notebooks           &lt;- Directory containing Jupyter notebooks detailing research, testing and 
+│                          example usage of project modules 
+│
+├── references          &lt;- Directory containing Data dictionaries, manuals, and all other 
+│                          explanatory materials
+│
+├── LICENSE             &lt;- Open-source license if one is chosen
+│
+├── Makefile            &lt;- Makefile with convenience commands 
+│
+├── mkdocs.yml          &lt;- mkdocs project configuration
+│
+├── Pipfile             &lt;- The project dependency file for reproducing the analysis environment, 
+│                          e.g., generated with `pipenv install`
+│
+├── Pipfile.lock        &lt;- Locked file containing hashes for dependencies
+│
+├── pyproject.toml      &lt;- Project configuration file with package metadata for nlpinitiative and 
+│                          configuration for tools like black
+│
+├── README.md           &lt;- The top-level README for developers using this project
+│
+├── setup.cfg           &lt;- Configuration file for flake8
+│
+└── setup.sh            &lt;- Bash script containing convenience commands for managing the project
+</code></pre>
+<p><span>
+    Based on the CookieCutter Data Science project structure template 
+    <a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
+        <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
+    </a>
+</span></p>
+<h3 id="project-model-and-dataset-repositories">Project Model and Dataset Repositories</h3>
+<h4 id="model-repositories">Model Repositories</h4>
+<table>
+<thead>
+<tr>
+<th>Fine-tuned Model</th>
+<th>Base Model</th>
+<th>Repository Link</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Binary Classification Model</td>
+<td>BERT</td>
+<td><a href="https://huggingface.co/dlsmallw/NLPinitiative-Binary-Classification">NLPinitiative-Binary-Classification</a></td>
+</tr>
+<tr>
+<td>Multilabel Regression Model</td>
+<td>BERT</td>
+<td><a href="https://huggingface.co/dlsmallw/NLPinitiative-Multilabel-Regression">NLPinitiative-Multilabel-Regression</a></td>
+</tr>
+</tbody>
+</table>
+<h4 id="dataset-repository">Dataset Repository</h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Repository Link</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dataset Repository</td>
+<td><a href="https://huggingface.co/datasets/dlsmallw/NLPinitiative-Dataset">NLPinitiative-Dataset</a></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="project-setup">Project Setup</h2>
+<p>The Makefile contains the central entry points for common tasks related to this project.</p>
+<hr />
+<h2 id="datasets-used">Datasets Used</h2>
+<h3 id="ethos-multi-label-hate-speech-detection-dataset"><a href="https://doi.org/10.1007/s40747-021-00608-2">Ethos</a> - multi-lab<strong>E</strong>l ha<strong>T</strong>e speec<strong>H</strong> detecti<strong>O</strong>n data<strong>S</strong>et</h3>
+<p>A collection consisting of binary and multilabel data containing hate speech from social media.</p>
+<h4 id="links">Links</h4>
+<ul>
+<li><a href="https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset">GitHub Repository</a><ul>
+<li><a href="https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset/blob/master/ethos/ethos_data/Ethos_Dataset_Binary.csv">Binary Dataset</a></li>
+<li><a href="https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset/blob/master/ethos/ethos_data/Ethos_Dataset_Multi_Label.csv">Multilabel Dataset</a></li>
+</ul>
+</li>
+</ul>
+<h4 id="bibtex-reference">BibTeX Reference</h4>
+<pre><code class="language-bibtex">@article{mollas_ethos_2022,
+    title = {{ETHOS}: a multi-label hate speech detection dataset},
+    issn = {2198-6053},
+    url = {https://doi.org/10.1007/s40747-021-00608-2},
+    doi = {10.1007/s40747-021-00608-2},
+    journal = {Complex \&amp; Intelligent Systems},
+    author = {Mollas, Ioannis and Chrysopoulou, Zoe and Karlos, Stamatis and Tsoumakas, Grigorios},
+    month = jan,
+    year = {2022},
+}
+</code></pre>
+<h3 id="multitarget-conan"><a href="https://doi.org/10.1007/s40747-021-00608-2">Multitarget-CONAN</a></h3>
+<p>Multi-Target CONAN is a dataset of hate speech/counter-narrative pairs for English comprising several hate targets, collected using a Human-in-the-Loop approach.</p>
+<h4 id="links_1">Links</h4>
+<ul>
+<li><a href="https://github.com/marcoguerini/CONAN">GitHub Repository</a><ul>
+<li><a href="https://github.com/marcoguerini/CONAN/blob/master/Multitarget-CONAN/Multitarget-CONAN.csv">Multitarget-CONAN Dataset</a></li>
+</ul>
+</li>
+</ul>
+<h4 id="bibtex-reference_1">BibTeX Reference</h4>
+<pre><code class="language-bibtex">@inproceedings{fanton-2021-human,
+  title=&quot;{Human-in-the-Loop for Data Collection: a Multi-Target Counter Narrative Dataset to Fight Online Hate Speech}&quot;,
+  author=&quot;{Fanton, Margherita and Bonaldi, Helena and Tekiroğlu, Serra Sinem and Guerini, Marco}&quot;,
+  booktitle = &quot;Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics&quot;,
+  month = aug,
+  year = &quot;2021&quot;,
+  publisher = &quot;Association for Computational Linguistics&quot;,
+}
+</code></pre>
+<hr />
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="dataset-management/" class="btn btn-neutral float-right" title="Dataset Management">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+      <span><a href="dataset-management/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.6.1
+Build Date UTC : 2025-03-28 06:01:27.593257+00:00
+-->
