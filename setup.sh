@@ -30,8 +30,10 @@ docs() {
         serve)
             mkdocs serve
             ;;
+        deploy)
+            mkdocs gh-deploy --force
         *)
-            log_error "Specify 'build' or 'serve'. For example: docs build"
+            log_error "Specify 'build', 'serve' or 'deploy'. For example: docs build"
             ;;
     esac
 }
