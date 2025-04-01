@@ -30,6 +30,7 @@ huggingface-hub = "*"
 joblib = "*"
 mkdocstrings-python = "*"
 nltk = "*"
+toml = "*"
 
 [dev-packages]
 
