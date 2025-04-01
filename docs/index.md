@@ -44,8 +44,6 @@ Codebase for training, evaluating and deploying NLP models used to detect discri
 │
 ├── LICENSE             <- Open-source license if one is chosen
 │
-├── Makefile            <- Makefile with convenience commands 
-│
 ├── mkdocs.yml          <- mkdocs project configuration
 │
 ├── Pipfile             <- The project dependency file for reproducing the analysis environment, 
