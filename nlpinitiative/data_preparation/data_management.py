@@ -484,7 +484,7 @@ class DataManager:
 
         Parameters
         ----------
-        dataset_path : Path
+        ds_path : Path
             The file path to the dataset.
 
         Returns
