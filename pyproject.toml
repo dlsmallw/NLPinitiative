@@ -1,35 +1,37 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
+requires = [ "flit_core >=3.2,<4",]
 build-backend = "flit_core.buildapi"
 
 [project]
 name = "nlpinitiative"
 version = "0.0.1"
 description = "Codebase for training, evaluating and deploying an NLP model used to detect misinformation and/or discriminatory language targetting marginallized individuals or communities."
-authors = [
-  { name = "ASU Capstone Group 8 / J-Healthcare Initiative" },
-]
-dependencies = [
-    "mkdocstrings-python",
-]
-license = { file = "LICENSE" }
+dependencies = [ "mkdocstrings-python",]
 readme = "README.md"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License"
-]
+classifiers = [ "Programming Language :: Python :: 3", "License :: OSI Approved :: MIT License",]
 requires-python = "~=3.12"
+[[project.authors]]
+name = "ASU Capstone Group 8 / J-Healthcare Initiative"
+
+[repositories]
+bin_repo = "dlsmallw/NLPinitiative-Binary-Classification"
+ml_repo = "dlsmallw/NLPinitiative-Multilabel-Regression"
+ds_repo = "dlsmallw/NLPinitiative-Dataset"
+streamlit_repo = "dlsmallw/NLPinitiative-Streamlit-App"
+
+[project-urls]
+hf_space_base_url = "https://huggingface.co/spaces/"
+hf_model_base_url = "https://huggingface.co/"
+hf_dataset_base_url = "https://huggingface.co/datasets/"
+
+[project.license]
+file = "LICENSE"
 
 [tool.black]
 line-length = 99
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.venv
-)/
-'''
+include = "\\.pyi?$"
+exclude = "/(\n    \\.git\n  | \\.venv\n)/\n"
 
 [tool.ruff.lint.isort]
-known_first_party = ["nlpinitiative"]
+known_first_party = [ "nlpinitiative",]
 force_sort_within_sections = true
