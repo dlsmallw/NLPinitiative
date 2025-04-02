@@ -44,8 +44,20 @@
                 <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
                 </li>
               </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../notebooks/Data_Import_Notes/">Data Importing and Normalization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../notebooks/Data_Processing/">Data Preprocessing and Tokenization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../notebooks/Model_Training/">Model Training, Evaluation and Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../notebooks/Inference_Demo/">Model Inference</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Module Documentation</span></p>
               <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="#">Dataset Management</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Dataset Management</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#nlpinitiative.data_preparation.data_management">data_management</a>
         <ul>
@@ -142,11 +154,9 @@
         </ul>
     </li>
     </ul>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../model-management/">Model Training, Evaluation and Inference</a>
-                </li>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../model-management/">Model Training, Evaluation and Inference</a>
+                  </li>
               </ul>
       </div>
     </div>
@@ -162,6 +172,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Module Documentation</li>
       <li class="breadcrumb-item active">Dataset Management</li>
     <li class="wy-breadcrumbs-aside">
     </li>
@@ -1218,7 +1229,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dataset_path : Path</span>
+<span class="sd">        ds_path : Path</span>
 <span class="sd">            The file path to the dataset.</span>
 
 <span class="sd">        Returns</span>
@@ -1585,7 +1596,7 @@ stores the master dataset in the data/processed directory.</p>
       <td class="field-body">
         <ul class="first simple">
             <li>
-              <b><code>dataset_path</code></b>
+              <b><code>ds_path</code></b>
                   (<code><span title="pathlib.Path">Path</span></code>)
               –
               <div class="doc-md-description">
@@ -1691,7 +1702,7 @@ stores the master dataset in the data/processed directory.</p>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    dataset_path : Path</span>
+<span class="sd">    ds_path : Path</span>
 <span class="sd">        The file path to the dataset.</span>
 
 <span class="sd">    Returns</span>
@@ -6124,7 +6135,7 @@ the labels to their respective indices and a dict mapping the indices to the res
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../notebooks/Inference_Demo/" class="btn btn-neutral float-left" title="Model Inference"><span class="icon icon-circle-arrow-left"></span> Previous</a>
         <a href="../model-management/" class="btn btn-neutral float-right" title="Model Training, Evaluation and Inference">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
@@ -6148,7 +6159,7 @@ the labels to their respective indices and a dict mapping the indices to the res
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../notebooks/Inference_Demo/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../model-management/" style="color: #fcfcfc">Next &raquo;</a></span>
