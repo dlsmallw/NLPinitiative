@@ -13,6 +13,8 @@ nav:
     - Dataset Management: dataset-management.md
     - Model Training, Evaluation and Inference: model-management.md
   
+extra_css:
+  - style/style.css
 
 theme:
   name: readthedocs
