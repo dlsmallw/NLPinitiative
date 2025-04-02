@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a05f11f1004754a8e9e0192df88ff8d47054f7b4cd6e08b07fbc11afe59ec02b"
+            "sha256": "1fe3412862eaaeb680f2e719e9ba3061c376632cc27865665720b1e039a793a0"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -209,6 +209,18 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==2.17.0"
+        },
+        "backrefs": {
+            "hashes": [
+                "sha256:2cab642a205ce966af3dd4b38ee36009b31fa9502a35fd61d59ccc116e40a6bd",
+                "sha256:2e1c15e4af0e12e45c8701bd5da0902d326b2e200cafcd25e49d9f06d44bb61b",
+                "sha256:a66851e4533fb5b371aa0628e1fee1af05135616b86140c9d787a2ffdf4b8fdc",
+                "sha256:bbef7169a33811080d67cdf1538c8289f76f0942ff971222a16034da88a73486",
+                "sha256:c67f6638a34a5b8730812f5101376f9d41dc38c43f1fdc35cb54700f6ed4465d",
+                "sha256:e3a63b073867dbefd0536425f43db618578528e3896fb77be7141328642a1585"
+            ],
+            "markers": "python_version >= '3.9'",
+            "version": "==5.8"
         },
         "beautifulsoup4": {
             "hashes": [
@@ -1062,6 +1074,14 @@
             "markers": "python_version >= '3.7'",
             "version": "==3.0.13"
         },
+        "jupytext": {
+            "hashes": [
+                "sha256:912f9d9af7bd3f15470105e5c5dddf1669b2d8c17f0c55772687fc5a4a73fe69",
+                "sha256:fc4e97f0890e22062c4ef10313c7ca960b07b3767246a1fef7585888cc2afe5d"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==1.16.7"
+        },
         "kiwisolver": {
             "hashes": [
                 "sha256:01c3d31902c7db5fb6182832713d3b4122ad9317c2c5877d0539227d96bb2e50",
@@ -1297,6 +1317,14 @@
             "markers": "python_version >= '3.6'",
             "version": "==0.7.0"
         },
+        "mdit-py-plugins": {
+            "hashes": [
+                "sha256:0c673c3f889399a33b95e88d2f0d111b4447bdfea7f237dab2d488f459835636",
+                "sha256:5f2cd1fdb606ddf152d37ec30e46101a60512bc0e5fa1a7002c36647b09e26b5"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==0.4.2"
+        },
         "mdurl": {
             "hashes": [
                 "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8",
@@ -1345,6 +1373,31 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==0.2.0"
+        },
+        "mkdocs-jupyter": {
+            "hashes": [
+                "sha256:0e9272ff4947e0ec683c92423a4bfb42a26477c103ab1a6ab8277e2dcc8f7afe",
+                "sha256:3f679a857609885d322880e72533ef5255561bbfdb13cfee2a1e92ef4d4ad8d8"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.9'",
+            "version": "==0.25.1"
+        },
+        "mkdocs-material": {
+            "hashes": [
+                "sha256:0b7f4a0145c5074cdd692e4362d232fb25ef5b23328d0ec1ab287af77cc0deff",
+                "sha256:47f21ef9cbf4f0ebdce78a2ceecaa5d413581a55141e4464902224ebbc0b1263"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==9.6.11"
+        },
+        "mkdocs-material-extensions": {
+            "hashes": [
+                "sha256:10c9511cea88f568257f960358a467d12b970e1f7b2c0e5fb2bb48cab1928443",
+                "sha256:adff8b62700b25cb77b53358dad940f3ef973dd6db797907c49e3c2ef3ab4e31"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==1.3.1"
         },
         "mkdocstrings": {
             "hashes": [
@@ -1641,6 +1694,13 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==24.2"
+        },
+        "paginate": {
+            "hashes": [
+                "sha256:22bd083ab41e1a8b4f3690544afb2c60c25e5c9a63a30fa2f483f6c60c8e5945",
+                "sha256:b885e2af73abcf01d9559fd5216b57ef722f8c42affbb63942377668e35c7591"
+            ],
+            "version": "==0.5.7"
         },
         "pandas": {
             "hashes": [

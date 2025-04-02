@@ -4,8 +4,15 @@ site_author: ASU Capstone Group 8 / J Healthcare Initiative
 # 
 nav:
   - Home: index.md
-  - Dataset Management: dataset-management.md
-  - Model Training, Evaluation and Inference: model-management.md
+  - User Guide:
+    - Data Importing and Normalization: notebooks/Data_Import_Notes.ipynb
+    - Data Preprocessing and Tokenization: notebooks/Data_Processing.ipynb
+    - Model Training, Evaluation and Deployment: notebooks/Model_Training.ipynb
+    - Model Inference: notebooks/Inference_Demo.ipynb
+  - Module Documentation:
+    - Dataset Management: dataset-management.md
+    - Model Training, Evaluation and Inference: model-management.md
+  
 
 theme:
   name: readthedocs
@@ -17,3 +24,4 @@ plugins:
       python:
         options:
           docstring_style: numpy
+- mkdocs-jupyter
