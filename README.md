@@ -7,6 +7,10 @@
 ### Description
 Codebase for training, evaluating and deploying NLP models used to detect discriminatory language targeting marginallized individuals or communities and the type(s) of discrimination detected.
 
+### Links
+ - **<a href="https://dlsmallw.github.io/NLPinitiative/" style="text-decoration:none"><img src="https://www.svgrepo.com/show/475292/document.svg" style="margin-right: 3px;" width="15" height="15"/> Project Documentation</a>** - Usage and information about the modules within the project.
+
+
 ### Organization
 
 ```
