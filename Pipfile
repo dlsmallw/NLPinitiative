@@ -32,6 +32,9 @@ mkdocstrings-python = "*"
 nltk = "*"
 toml = "*"
 mkdocs-jupyter = "*"
+coverage = "*"
+openpyxl = "*"
+validators = "*"
 
 [dev-packages]
 

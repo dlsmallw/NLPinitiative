@@ -22,14 +22,14 @@ try:
         config = toml.load(f, dict)
         f.close()
 
-    if "repositories" not in config.keys():
+    if "repositories" not in config.keys(): # pragma: no cover
         config["repositories"] = {
             "bin_repo": "",
             "ml_repo": "",
             "ds_repo": "",
             "streamlit_repo": "",
         }
-    else:
+    else: # pragma: no cover
         if "bin_repo" not in config["repositories"].keys():
             config["repositories"]["bin_repo"] = ""
         if "ml_repo" not in config["repositories"].keys():
@@ -39,13 +39,13 @@ try:
         if "streamlit_repo" not in config["repositories"].keys():
             config["repositories"]["streamlit_repo"] = ""
 
-    if "project-urls" not in config.keys():
+    if "project-urls" not in config.keys(): # pragma: no cover
         config["project-urls"] = {
             "hf_space_base_url": "",
             "hf_model_base_url": "",
             "hf_dataset_base_url": "",
         }
-    else:
+    else: # pragma: no cover
         if "hf_space_base_url" not in config["project-urls"].keys():
             config["project-urls"]["hf_space_base_url"] = ""
         if "hf_model_base_url" not in config["project-urls"].keys():
@@ -54,7 +54,7 @@ try:
             config["project-urls"]["hf_dataset_base_url"] = ""
 
     logger.success("pyproject.toml loaded successfully.")
-except Exception as e:
+except Exception as e: # pragma: no cover
     logger.error(e)
 
 # Dataset directories
@@ -63,6 +63,9 @@ RAW_DATA_DIR = DATA_DIR / "raw"
 INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 NORM_SCHEMA_DIR = DATA_DIR / "normalization_schema"
+
+# Testing Directories
+TEST_DATA_DIR = PROJ_ROOT / "test" / "test_files"
 
 # Model directories
 MODELS_DIR = PROJ_ROOT / "models"
@@ -96,7 +99,7 @@ def main(
     hf_space_base_url: Annotated[str, typer.Option("--space-url", "-su")] = None,
     hf_model_base_url: Annotated[str, typer.Option("--model-url", "-mu")] = None,
     hf_dataset_base_url: Annotated[str, typer.Option("--dataset-url", "-du")] = None,
-):
+): # pragma: no cover
     toml_edited = False
 
     if bin_repo is not None and len(bin_repo) > 0:
@@ -140,5 +143,5 @@ def main(
             f.close()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
     app()

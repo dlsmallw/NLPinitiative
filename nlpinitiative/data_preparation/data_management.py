@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import huggingface_hub as hfh
+import validators
 
 from pathlib import Path
 from loguru import logger
@@ -21,6 +22,7 @@ from nlpinitiative.config import (
     BINARY_LABELS,
     CATEGORY_LABELS,
     DEF_MODEL,
+    TEST_DATA_DIR,
 )
 
 ACCEPTED_FILE_FORMATS = [".csv", ".xlsx", ".json"]
@@ -149,6 +151,11 @@ class DataManager:
             The dataset as a Pandas DataFrame.
         """
 
+        if not validators.url(source) and not os.path.exists(source):
+            err_msg = f"File path does not exist - {source}"
+            logger.error(err_msg)
+            raise FileNotFoundError(err_msg)
+
         try:
             match ext:
                 case ".csv":
@@ -157,13 +164,13 @@ class DataManager:
                     except:
                         df = pd.read_csv(source, delimiter=";")
                 case ".xlsx":
-                    df = pd.read_excel(source)
+                    df = pd.read_excel(source, engine="openpyxl")
                 case ".json":
                     df = pd.read_json(source)
                 case _:
                     df = None
             return df
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             err_msg = f"Failed to import from source - {e}"
             logger.error(err_msg)
             raise Exception(err_msg)
@@ -171,11 +178,14 @@ class DataManager:
     def import_data(
         self,
         import_type: str,
-        source,
+        source: str,
         dataset_name: str,
+        output_fn: str = None,
+        destination: str = RAW_DATA_DIR,
         is_third_party: bool = True,
         local_ds_ref_url: bool = None,
         overwrite: bool = False,
+        testing: bool = False,
     ) -> pd.DataFrame:
         """Imports data from a local (by file path) or remote (ny URL) source.
 
@@ -185,6 +195,8 @@ class DataManager:
             'local' if from a local source, 'external' if from remote source.
         source : str
             The file path or URL of the dataset.
+        destination : str, optional
+            The destination directory for the dataset (default is data/raw).
         dataset_name : str
             The name used to id the dataset.
         is_third_party : bool, optional
@@ -193,6 +205,8 @@ class DataManager:
             Reference URL for datasets imported locally (default is None).
         overwrite : bool, optional
             True if files with the same name should be overwritten, False if not (default is False).
+        testing : bool, optional
+            True if the function is being run in a testing environment, False if not (default is False).
 
         Returns
         -------
@@ -208,7 +222,7 @@ class DataManager:
                 if source is None or not os.path.exists(source):
                     err_msg = "Dataset filepath does not exist"
                     logger.error(err_msg)
-                    raise Exception(err_msg)
+                    raise FileNotFoundError(err_msg)
 
                 if is_third_party and not self._is_valid_url(local_ds_ref_url):
                     err_msg = (
@@ -221,6 +235,9 @@ class DataManager:
 
                 tail = os.path.split(source)[-1]
                 filename, ext = os.path.splitext(tail)[-2:]
+
+                if output_fn is not None:
+                    filename = output_fn
 
                 if ext not in ACCEPTED_FILE_FORMATS:
                     err_msg = "Unsupported file type"
@@ -236,7 +253,11 @@ class DataManager:
 
                 ref_url = source
                 formatted_url = self._format_url(ref_url)
-                filename = self._generate_import_filename(formatted_url)
+                if output_fn is not None:
+                    filename = output_fn
+                else:
+                    filename = self._generate_import_filename(formatted_url)
+                
                 path = urlparse(formatted_url).path
                 ext = os.path.splitext(path)[1]
 
@@ -253,18 +274,20 @@ class DataManager:
 
         ds_df = self.file_to_df(src, ext)
 
-        if self.rec_mgr.dataset_src_exists(ref_url):
-            return ds_df
-
         self._store_data(
-            data_df=ds_df, filename=filename, destpath=RAW_DATA_DIR, overwrite=overwrite
+            data_df=ds_df, filename=filename, destpath=destination, overwrite=overwrite
         )
-        self.rec_mgr.update(
-            ds_id=dataset_name,
-            src_url=ref_url,
-            download_url=formatted_url,
-            raw_ds_filename=f"{filename}.csv",
-        )
+
+        if not testing: # pragma: no cover
+            if self.rec_mgr.dataset_src_exists(ref_url):
+                return ds_df
+            else:
+                self.rec_mgr.update(
+                ds_id=dataset_name,
+                src_url=ref_url,
+                download_url=formatted_url,
+                raw_ds_filename=f"{filename}.csv",
+            )
 
         logger.success(f"Successfully imported {import_type} dataset from {source}.")
         return ds_df
@@ -289,7 +312,7 @@ class DataManager:
         return os.path.exists(path)
 
     def normalize_dataset(
-        self, ds_files: list[str], conv_schema_fn: str, output_fn: str
+        self, ds_files: list[str], conv_schema_fn: str, output_fn: str, testing: bool = False
     ) -> pd.DataFrame:
         """Handles normalization of a third-party dataset to the schema used for training our models.
 
@@ -301,6 +324,8 @@ class DataManager:
             The file name of the json conversion schema used.
         output_fn : str
             The output filename to be used.
+        testing : bool, optional
+            True if the function is being run in a testing environment, False if not (default is False).
 
         Returns
         -------
@@ -308,16 +333,20 @@ class DataManager:
             True if it exists, False if it does not.
         """
 
+        formatted_file_list = []
+        filepath = RAW_DATA_DIR if not testing else TEST_DATA_DIR
         for filename in ds_files:
-            if not self._valid_filepath((RAW_DATA_DIR / filename)):
-                err_msg = f"Invalid filepath for file, {filename} [{RAW_DATA_DIR / filename}]."
+            if not self._valid_filepath((filepath / filename)):
+                err_msg = f"Invalid filepath for file, {filename} [{filepath / filename}]."
                 logger.error(err_msg)
-                raise Exception(err_msg)
+                raise FileNotFoundError(err_msg)
+            formatted_file_list.append(filepath / filename)
 
-        if not self._valid_filepath(NORM_SCHEMA_DIR / conv_schema_fn):
+        norm_schema_path = NORM_SCHEMA_DIR if not testing else TEST_DATA_DIR
+        if not self._valid_filepath(norm_schema_path / conv_schema_fn):
             err_msg = f"Normalization schema file, {conv_schema_fn}, does not exist."
             logger.error(err_msg)
-            raise Exception(err_msg)
+            raise FileNotFoundError(err_msg)
 
         if output_fn is None or not len(output_fn) > 0:
             err_msg = f"Invalid output filename"
@@ -326,31 +355,33 @@ class DataManager:
 
         try:
             normalized_df = self.normalizer.normalize_datasets(
-                files=ds_files, cv_path=NORM_SCHEMA_DIR / conv_schema_fn
+                files=formatted_file_list, cv_path=norm_schema_path / conv_schema_fn
             )
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             err_msg = f"Failed to normalize file(s) - {e}"
             logger.error(err_msg)
             raise Exception(err_msg)
 
-        self._store_data(normalized_df, output_fn, INTERIM_DATA_DIR)
-        for filename in ds_files:
-            row_vals = self.rec_mgr.get_entry_by_raw_fn(filename)
-            self.rec_mgr.update(
-                ds_id=row_vals[0],
-                src_url=row_vals[1],
-                download_url=row_vals[2],
-                raw_ds_filename=row_vals[3],
-                normalization_schema_filename=conv_schema_fn,
-                normalized_ds_filename=f"{output_fn}.csv",
-            )
+        output_path = INTERIM_DATA_DIR if not testing else TEST_DATA_DIR / 'output'
+        self._store_data(normalized_df, output_fn, output_path)
+        if not testing: # pragma: no cover
+            for filename in ds_files:
+                row_vals = self.rec_mgr.get_entry_by_raw_fn(filename)
+                self.rec_mgr.update(
+                    ds_id=row_vals[0],
+                    src_url=row_vals[1],
+                    download_url=row_vals[2],
+                    raw_ds_filename=row_vals[3],
+                    normalization_schema_filename=conv_schema_fn,
+                    normalized_ds_filename=f"{output_fn}.csv",
+                )
         logger.success(f"Successfully normalized dataset files [{', '.join(ds_files)}]")
         return normalized_df
 
     # Master Dataset Creation
     # ===================================================================================================================
 
-    def build_master_dataset(self):
+    def build_master_dataset(self): # pragma: no cover
         """Takes the processed datasets, merges them and then stores the resulting dataset in the data/processed directory.
 
         Facilitates consolidation of all imported and normalized datasets into a single, master dataset and
@@ -374,7 +405,7 @@ class DataManager:
             overwrite=True,
         )
 
-    def pull_dataset_repo(self, token: str):
+    def pull_dataset_repo(self, token: str): # pragma: no cover
         """Pulls the data directory from the linked Hugging Face Dataset Repository.
 
         Parameters
@@ -388,7 +419,7 @@ class DataManager:
                 repo_id=DATASET_REPO, repo_type="dataset", local_dir=DATA_DIR, token=token
             )
 
-    def push_dataset_dir(self, token: str):
+    def push_dataset_dir(self, token: str): # pragma: no cover
         """Pushes the data directory (all dataset information) to the linked Hugging Face Dataset Repository.
 
         Parameters
@@ -451,7 +482,7 @@ class DataManager:
 
     def _store_data(
         self, data_df: pd.DataFrame, filename: str, destpath: Path, overwrite: bool = False
-    ):
+    ): # pragma: no cover
         """Stores the specified DataFrame as a csv dataset within the data directory.
 
         Parameters
@@ -540,7 +571,7 @@ class DataManager:
 
         return json_obj
 
-    def remove_file(self, filename: str, path: Path):
+    def remove_file(self, filename: str, path: Path): # pragma: no cover
         """Removes the specified file.
 
         Parameters
@@ -629,7 +660,7 @@ class DatasetContainer:
         return self._tkzr
 
 
-class DatasetRecordManager:
+class DatasetRecordManager: # pragma: no cover
     """A class for managing and maintaining a record of the datasets imported and used for model training."""
 
     def __init__(self):

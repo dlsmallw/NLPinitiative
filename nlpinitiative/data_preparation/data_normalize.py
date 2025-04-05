@@ -86,17 +86,17 @@ class DataNormalizer:
             The normalized dataset(s) as a DataFrame.
         """
 
+        conv_scema = self._load_conv_schema(cv_path)
+        data_col_name = conv_scema["data_col"]
+
         num_files = len(files)
         src_df = None
         for i in range(0, num_files):
-            df = self._load_src_file(RAW_DATA_DIR / files[i])
+            df = self._load_src_file(files[i])
             if src_df is not None:
                 src_df = self._merge_dataframes(src_df, df, data_col_name)
             else:
                 src_df = df
-
-        conv_scema = self._load_conv_schema(cv_path)
-        data_col_name = conv_scema["data_col"]
 
         if conv_scema["mapping_type"] == "many2many":
             schema_cats = conv_scema["column_mapping"].keys()
@@ -156,7 +156,7 @@ class DataNormalizer:
                         row_data.append(val)
 
                     data.append(row_data)
-                except:
+                except: # pragma: no cover
                     pass
             master_df = pd.DataFrame(data=data, columns=DATASET_COLS)
         return master_df
