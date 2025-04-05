@@ -191,6 +191,27 @@ set() {
 }
 
 # ============================
+# ===      Run  Tests      ===
+# ============================
+run() {
+    cd "$PROJECT_ROOT" || return 1
+    case $1 in
+        tests)
+            log_info "Running tests..."
+            coverage run -m unittest discover
+            coverage report -m
+            coverage html
+            log_info "Tests complete. Check coverage report in htmlcov/index.html"
+            ;;
+        *)
+            log_error "Invalid run option."
+            echo "Available 'run' options:"
+            echo "  tests - Runs the test suite."
+            ;;
+    esac
+}
+
+# ============================
 # ===     Lint Command     ===
 # ============================
 lint() {
@@ -228,6 +249,7 @@ help() {
     echo "      clean       - Cleans project (i.e., deactivates venv, removes .venv and clears project of python cache and binary files)."
     echo "      lint        - Lints the project files."
     echo "      format      - Corrects the files identified while linting."
+    echo "      run tests   - Runs the test suite."
     echo "==========================================="
     echo "  'docs' command options:"
     echo "      docs build      - Generates mkdocs for the project."
