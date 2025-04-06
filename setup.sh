@@ -175,6 +175,9 @@ set() {
             dataset_url)
                 python ./nlpinitiative/config.py -du "$2"
                 ;;
+            hf_token)
+                python ./nlpinitiative/config.py -ht "$2"
+                ;;
             *)
                 log_error "Invalid set option."
                 echo "Available 'set' options:"
