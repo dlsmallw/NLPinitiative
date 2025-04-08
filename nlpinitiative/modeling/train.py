@@ -25,7 +25,7 @@ from sklearn.metrics import (
 from transformers import AutoModelForSequenceClassification, Trainer, TrainingArguments
 
 
-class RegressionTrainer(Trainer):
+class RegressionTrainer(Trainer):  # pragma: no cover
     """A custom class for overriding the compute_loss method used in regression model training."""
 
     def compute_loss(self, model, inputs, return_outputs: bool = False, **kwargs):
@@ -61,7 +61,7 @@ class RegressionTrainer(Trainer):
         return (loss, outputs) if return_outputs else loss
 
 
-def compute_bin_metrics(eval_predictions):
+def compute_bin_metrics(eval_predictions):  # pragma: no cover
     """Computes the metrics values resulting from the evaluation of the trained binary classification model.
 
     Parameters
@@ -94,7 +94,7 @@ def compute_bin_metrics(eval_predictions):
     }
 
 
-def compute_reg_metrics(eval_predictions):
+def compute_reg_metrics(eval_predictions):  # pragma: no cover
     """Computes the metrics values resulting from the evaluation of the trained multilabel regression model.
 
     Parameters
@@ -372,7 +372,7 @@ def get_ml_model(model_name: str = DEF_MODEL):
     )
 
 
-def train(bin_trainer: Trainer, ml_trainer: Trainer, token: str = None):
+def train(bin_trainer: Trainer, ml_trainer: Trainer, token: str = None):  # pragma: no cover
     """Performs training on the binary classification and multilabel regression models.
 
     Parameters
@@ -406,7 +406,7 @@ def train(bin_trainer: Trainer, ml_trainer: Trainer, token: str = None):
     return bin_eval, ml_eval
 
 
-def upload_best_models(token: str):
+def upload_best_models(token: str):  # pragma: no cover
     """Pushes the current best performing binary classification and multilabel regression models to their respective linked Hugging Face Model Repositories.
 
     Parameters

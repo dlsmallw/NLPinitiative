@@ -13,6 +13,7 @@ from nlpinitiative.data_preparation.data_management import DataManager, DatasetC
 
 class TestDataManager(unittest.TestCase):
     def setUp(self):
+        """Set up the test case by creating a DataManager instance and generating test files."""
         self.dm = DataManager()
 
         test_dataset1 = pd.DataFrame(
@@ -93,7 +94,7 @@ class TestDataManager(unittest.TestCase):
         self.dm.normalize_dataset(ds_files=["test_data1.csv", "test_data2.csv"], conv_schema_fn="test_norm_schema1.json", output_fn="norm_ds_for_prep", testing=True)
 
     def tearDown(self):
-        pass
+        """Clean up the test case by removing generated files."""
         self.dm.remove_file(filename="test_data1.csv", path=TEST_DATA_DIR)
         self.dm.remove_file(filename="test_data_semicolon_delimiter.csv", path=TEST_DATA_DIR)
         self.dm.remove_file(filename="test_data1.json", path=TEST_DATA_DIR)
@@ -107,6 +108,8 @@ class TestDataManager(unittest.TestCase):
             self.dm.remove_file(filename=f, path=TEST_DATA_DIR / "output")
 
     def test_url_validation(self):
+        """Test the URL validation function."""
+
         # Test with a valid URL and an invalid URL
         valid_url = "https://example.com/data"
         invalid_url = "invalid_url"
@@ -120,6 +123,8 @@ class TestDataManager(unittest.TestCase):
         self.assertTrue(self.dm._is_valid_url(valid_gh_url_two))
     
     def test_import_filename_generation(self):
+        """Test the filename generation function."""
+
         gh_url = "https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset/blob/master/ethos/ethos_data/Ethos_Dataset_Binary.csv"
         non_gh_url = "https://example.com/data"
         expected_gh_filename = "intelligence-csd-auth-gr_Ethos-Hate-Speech-Dataset_Ethos_Dataset_Binary"
@@ -128,6 +133,8 @@ class TestDataManager(unittest.TestCase):
         self.assertEqual(self.dm._generate_import_filename(non_gh_url), expected_non_gh_filename)
 
     def test_file_to_df(self):
+        """Test the file to DataFrame conversion function."""
+
         # Test with a valid CSV file
         csv1_file_path = TEST_DATA_DIR / "test_data1.csv"
         df1 = self.dm.file_to_df(source=csv1_file_path, ext=".csv")
@@ -158,6 +165,8 @@ class TestDataManager(unittest.TestCase):
             self.dm.file_to_df(non_existent_file_path, ext=".csv")
 
     def test_import_data(self):
+        """Test the import data function."""
+
         dest_path = TEST_DATA_DIR / 'output';
 
         # Local Import Testing
@@ -234,6 +243,8 @@ class TestDataManager(unittest.TestCase):
         self.dm.remove_file(filename="remote_import_test.csv", path=dest_path)
 
     def test_dataset_normalization(self):
+        """Test the dataset normalization function."""
+
         # Test with invalid files
         with self.assertRaises(expected_exception=FileNotFoundError):
             normalized_df = self.dm.normalize_dataset(
@@ -302,6 +313,8 @@ class TestDataManager(unittest.TestCase):
         self.dm.remove_file(filename="normalized_test_data.csv", path=(TEST_DATA_DIR / "output"))
 
     def test_data_prep_and_processing(self):
+        """Test the data preparation and processing function."""
+
         ds_obj_one, ds_obj_two = self.dm.prepare_and_preprocess_dataset(
             filename="norm_ds_for_prep.csv",
             srcdir=(TEST_DATA_DIR / "output")
@@ -325,6 +338,8 @@ class TestDataManager(unittest.TestCase):
         self.assertIsInstance(ds_obj_two.idx2lbl, dict)
 
     def test_dataset_statisitics_creation(self):
+        """Test the dataset statistics creation function."""
+        
         stats = self.dm.get_dataset_statistics(
             ds_path=(TEST_DATA_DIR / "output" / "norm_ds_for_prep.csv")
         )

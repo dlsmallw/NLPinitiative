@@ -170,7 +170,7 @@ class DataManager:
                 case _:
                     df = None
             return df
-        except Exception as e: # pragma: no cover
+        except Exception as e:  # pragma: no cover
             err_msg = f"Failed to import from source - {e}"
             logger.error(err_msg)
             raise Exception(err_msg)
@@ -257,7 +257,7 @@ class DataManager:
                     filename = output_fn
                 else:
                     filename = self._generate_import_filename(formatted_url)
-                
+
                 path = urlparse(formatted_url).path
                 ext = os.path.splitext(path)[1]
 
@@ -278,16 +278,16 @@ class DataManager:
             data_df=ds_df, filename=filename, destpath=destination, overwrite=overwrite
         )
 
-        if not testing: # pragma: no cover
+        if not testing:  # pragma: no cover
             if self.rec_mgr.dataset_src_exists(ref_url):
                 return ds_df
             else:
                 self.rec_mgr.update(
-                ds_id=dataset_name,
-                src_url=ref_url,
-                download_url=formatted_url,
-                raw_ds_filename=f"{filename}.csv",
-            )
+                    ds_id=dataset_name,
+                    src_url=ref_url,
+                    download_url=formatted_url,
+                    raw_ds_filename=f"{filename}.csv",
+                )
 
         logger.success(f"Successfully imported {import_type} dataset from {source}.")
         return ds_df
@@ -357,14 +357,14 @@ class DataManager:
             normalized_df = self.normalizer.normalize_datasets(
                 files=formatted_file_list, cv_path=norm_schema_path / conv_schema_fn
             )
-        except Exception as e: # pragma: no cover
+        except Exception as e:  # pragma: no cover
             err_msg = f"Failed to normalize file(s) - {e}"
             logger.error(err_msg)
             raise Exception(err_msg)
 
-        output_path = INTERIM_DATA_DIR if not testing else TEST_DATA_DIR / 'output'
+        output_path = INTERIM_DATA_DIR if not testing else TEST_DATA_DIR / "output"
         self._store_data(normalized_df, output_fn, output_path)
-        if not testing: # pragma: no cover
+        if not testing:  # pragma: no cover
             for filename in ds_files:
                 row_vals = self.rec_mgr.get_entry_by_raw_fn(filename)
                 self.rec_mgr.update(
@@ -381,7 +381,7 @@ class DataManager:
     # Master Dataset Creation
     # ===================================================================================================================
 
-    def build_master_dataset(self): # pragma: no cover
+    def build_master_dataset(self):  # pragma: no cover
         """Takes the processed datasets, merges them and then stores the resulting dataset in the data/processed directory.
 
         Facilitates consolidation of all imported and normalized datasets into a single, master dataset and
@@ -405,7 +405,7 @@ class DataManager:
             overwrite=True,
         )
 
-    def pull_dataset_repo(self, token: str): # pragma: no cover
+    def pull_dataset_repo(self, token: str):  # pragma: no cover
         """Pulls the data directory from the linked Hugging Face Dataset Repository.
 
         Parameters
@@ -419,7 +419,7 @@ class DataManager:
                 repo_id=DATASET_REPO, repo_type="dataset", local_dir=DATA_DIR, token=token
             )
 
-    def push_dataset_dir(self, token: str): # pragma: no cover
+    def push_dataset_dir(self, token: str):  # pragma: no cover
         """Pushes the data directory (all dataset information) to the linked Hugging Face Dataset Repository.
 
         Parameters
@@ -482,7 +482,7 @@ class DataManager:
 
     def _store_data(
         self, data_df: pd.DataFrame, filename: str, destpath: Path, overwrite: bool = False
-    ): # pragma: no cover
+    ):  # pragma: no cover
         """Stores the specified DataFrame as a csv dataset within the data directory.
 
         Parameters
@@ -571,7 +571,7 @@ class DataManager:
 
         return json_obj
 
-    def remove_file(self, filename: str, path: Path): # pragma: no cover
+    def remove_file(self, filename: str, path: Path):  # pragma: no cover
         """Removes the specified file.
 
         Parameters
@@ -660,7 +660,7 @@ class DatasetContainer:
         return self._tkzr
 
 
-class DatasetRecordManager: # pragma: no cover
+class DatasetRecordManager:  # pragma: no cover
     """A class for managing and maintaining a record of the datasets imported and used for model training."""
 
     def __init__(self):

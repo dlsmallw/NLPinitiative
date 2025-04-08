@@ -156,7 +156,7 @@ class DataNormalizer:
                         row_data.append(val)
 
                     data.append(row_data)
-                except: # pragma: no cover
+                except:  # pragma: no cover
                     pass
             master_df = pd.DataFrame(data=data, columns=DATASET_COLS)
         return master_df

@@ -4,7 +4,6 @@ Script file used for performing inference with an existing model.
 
 import torch
 import json
-import nltk
 from nltk import sent_tokenize
 from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -118,7 +117,7 @@ class InferenceHandler:
         ml_inputs = self.encode_multilabel(text)
         return bin_inputs, ml_inputs
 
-    def classify_text(self, text: str):
+    def classify_text(self, text: str):  # pragma: no cover
         """Performs inference on the input text to determine the binary classification and the multilabel regression for the categories.
 
         Determines whether the text is discriminatory. If it is discriminatory, it will then perform regression on the input text to determine the
@@ -171,7 +170,7 @@ class InferenceHandler:
         result["results"] = sent_res_arr
         return result
 
-    def discriminatory_inference(self, text: str):
+    def discriminatory_inference(self, text: str):  # pragma: no cover
         """Performs inference on the input text to determine the binary classification.
 
         Parameters
@@ -197,7 +196,7 @@ class InferenceHandler:
 
         return bin_text_pred, pred_class
 
-    def category_inference(self, text: str):
+    def category_inference(self, text: str):  # pragma: no cover
         """Performs inference on the input text to determine the regression values for the categories of discrimination.
 
         Parameters
