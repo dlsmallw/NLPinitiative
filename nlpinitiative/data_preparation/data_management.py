@@ -1,3 +1,6 @@
+"""This module contains the DataManager class, which is responsible for managing the data import, normalization, and preprocessing/tokenization.
+It also includes the DatasetContainer and DatasetRecordManager classes for organizing dataset information and managing dataset records, respectively."""
+
 import os
 import pandas as pd
 import huggingface_hub as hfh

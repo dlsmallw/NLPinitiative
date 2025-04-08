@@ -1,7 +1,5 @@
-"""
-Script file used for facillitating dataset preparation and preprocessing
-for use in model training.
-"""
+"""This module contains the DataProcessor class, which is used for performing preprocessing/tokenization.
+It loads, tokenizes, and processes datasets for use in model training and evaluation."""
 
 import os
 from pathlib import Path

@@ -1,9 +1,5 @@
-"""
-Script file used for facillitating normalization of a third-party dataset(s) into
-the format that we will utilize for training the model. This script can also handle
-merging complimentary datasets (datasets that come from the same source that may have minor
-differences in labeling scheme).
-"""
+"""This module contains the DataNormalizer class, which is used to normalize datasets.
+It loads, merges, and normalizes one or more datasets to the schema used for model training."""
 
 from pathlib import Path
 import pandas as pd

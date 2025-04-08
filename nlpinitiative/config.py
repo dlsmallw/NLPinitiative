@@ -1,3 +1,5 @@
+"""This script is used to set up the configuration for the NLPinitiative project."""
+
 import os
 import toml
 import typer

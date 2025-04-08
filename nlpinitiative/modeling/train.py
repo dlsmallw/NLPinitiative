@@ -1,6 +1,4 @@
-"""
-Script file containing the logic for training NLP models.
-"""
+"""This module contains the training logic for the binary classification and multilabel regression models."""
 
 from pathlib import Path
 from scipy.stats import pearsonr

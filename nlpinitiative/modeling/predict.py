@@ -1,6 +1,4 @@
-"""
-Script file used for performing inference with an existing model.
-"""
+"""This module contains the InferenceHandler class, which is responsible for performing inference using the trained binary classification and multilabel regression models."""
 
 import torch
 import json
