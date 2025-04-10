@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="None" /><meta name="author" content="ASU Capstone Group 8 / J Healthcare Initiative" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="ASU Capstone Group 8 / J Healthcare Initiative" />
       <link rel="shortcut icon" href="img/favicon.ico" />
-    <title>NLPInitiative</title>
+    <title>About This Project - NLPInitiative</title>
     <link rel="stylesheet" href="css/theme.css" />
     <link rel="stylesheet" href="css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -14,7 +14,7 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Home";
+        var mkdocs_page_name = "About This Project";
         var mkdocs_page_input_path = "index.md";
         var mkdocs_page_url = null;
       </script>
@@ -41,49 +41,34 @@
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">About</span></p>
               <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="#">Home</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">About This Project</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#project-details">Project Details</a>
+    <li class="toctree-l2"><a class="reference internal" href="#project-links">Project Links</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#table-of-contents">Table of Contents</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#description">Description</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#organization">Organization</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#project-model-and-dataset-repositories">Project Model and Dataset Repositories</a>
-        <ul>
-    <li class="toctree-l4"><a class="reference internal" href="#model-repositories">Model Repositories</a>
-    </li>
-    <li class="toctree-l4"><a class="reference internal" href="#dataset-repository">Dataset Repository</a>
+    <li class="toctree-l3"><a class="reference internal" href="#commands">Commands</a>
     </li>
         </ul>
     </li>
-        </ul>
+    <li class="toctree-l2"><a class="reference internal" href="#structure">Structure</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#project-setup">Project Setup</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#datasets-used">Datasets Used</a>
+    <li class="toctree-l2"><a class="reference internal" href="#datasets">Datasets</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#ethos-multi-label-hate-speech-detection-dataset">Ethos - multi-labEl haTe speecH detectiOn dataSet</a>
-        <ul>
-    <li class="toctree-l4"><a class="reference internal" href="#links">Links</a>
-    </li>
-    <li class="toctree-l4"><a class="reference internal" href="#bibtex-reference">BibTeX Reference</a>
-    </li>
-        </ul>
+    <li class="toctree-l3"><a class="reference internal" href="#ethos">ETHOS</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#multitarget-conan">Multitarget-CONAN</a>
-        <ul>
-    <li class="toctree-l4"><a class="reference internal" href="#links_1">Links</a>
-    </li>
-    <li class="toctree-l4"><a class="reference internal" href="#bibtex-reference_1">BibTeX Reference</a>
     </li>
         </ul>
     </li>
-        </ul>
+    <li class="toctree-l2"><a class="reference internal" href="#license">License</a>
     </li>
     </ul>
-                </li>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">User Guide</span></p>
               <ul>
@@ -117,7 +102,8 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Home</li>
+          <li class="breadcrumb-item">About</li>
+      <li class="breadcrumb-item active">About This Project</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -127,11 +113,59 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="nlpinitiative-documentation">NLPInitiative Documentation</h1>
-<hr />
-<h2 id="project-details">Project Details</h2>
-<h3 id="description">Description</h3>
+<p><a href="#license"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a></p>
 <p>Codebase for training, evaluating and deploying NLP models used to detect discriminatory language targeting marginallized individuals or communities and the type(s) of discrimination detected.</p>
-<h3 id="organization">Organization</h3>
+<p>This project was developed in coordination with the <strong><a href="https://www.j-initiative.org/" style="text-decoration:none">The J-Healthcare Initiative</a></strong> for the purposes of detecting discriminatory language in textual media from public officials/organizations and news agencies targetting marginalized communities communities.</p>
+<h2 id="project-links">Project Links</h2>
+<ul>
+<li><strong><a href="https://huggingface.co/dlsmallw/NLPinitiative-Binary-Classification" style="text-decoration:none">🤗 NLPinitiative-Binary-Classification</a></strong> - The fine-tuned binary classfication models HF Model Repository.</li>
+<li><strong><a href="https://huggingface.co/dlsmallw/NLPinitiative-Multilabel-Regression" style="text-decoration:none">🤗 NLPinitiative-Multilabel-Regression</a></strong> - The fine-tuned multilabel regression models HF Model Repository.</li>
+<li><strong><a href="https://huggingface.co/datasets/dlsmallw/NLPinitiative-Dataset" style="text-decoration:none">🤗 NLPinitiative-Dataset</a></strong> - The HF hosted Dataset Repository.</li>
+<li><strong><a href="https://huggingface.co/spaces/dlsmallw/NLPinitiative-Streamlit-App" style="text-decoration:none">🤗 HF Spaces Streamlit Web Application</a></strong> - The HF Space hosting the served models.</li>
+</ul>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#setup">Setup</a></li>
+<li><a href="#structure">Structure</a></li>
+<li><a href="#datasets">Datasets</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+<hr />
+<h2 id="setup">Setup</h2>
+<p>For the purposes of easily building, setting up and managing the project codebase, a bash script, <code>setup.sh</code>, has been created which contains a suite of custom commands for running various development-related processes (defined below). Use of this script requires that a bash shell is installed and set up (git bash for Windows users). For configuring and setting up your system to enable the use of Linux subsystems (Windows users), please see <a href="https://www.google.com/search?client=firefox-b-d&amp;q=Microsoft+windows+bash">this</a> for details on how to install and enabling WSL.</p>
+<p>This script can be activated by entering <code>source ./setup.sh</code> within the bash shell while within the project source directory.</p>
+<h4 id="commands">Commands</h4>
+<ul>
+<li><code>help</code>: Displays all of the commands that can be used.</li>
+<li><code>build</code>: This will setup a virtual environment within the project source directory and install all necessary dependencies for development.</li>
+<li><code>clean</code>: This will deactivate the virutal environment, and remove the .venv directory (uninstalling all dependencies).</li>
+<li><code>docs build</code>: Parses the docstrings in the project and generates the project documentation using mkdocs.</li>
+<li><code>docs serve</code>: Serves the mkdocs documentation to a local dev server that can be opened in a browser.</li>
+<li><code>docs deploy</code>: Deploys the mkdocs documentation to the linked GitHub repositories 'GitHub Pages'.</li>
+<li><code>lint</code>: Lints (analyzes and identifies style/format issues to correct) the project files.</li>
+<li><code>format</code>: Corrects the issues identified from running the lint command.</li>
+<li><code>run tests</code>: Runs the test suite..</li>
+<li><code>set bin_repo &lt;HF Model Repository ID&gt;</code>: Sets the binary model repository ID to the specified string.<ul>
+<li>This is the source for downloading the model tensor file.</li>
+</ul>
+</li>
+<li><code>set ml_repo &lt;HF Model Repository ID&gt;</code>: Sets the multilabel regression model repository ID to the specified string.<ul>
+<li>This is the source for downloading the model tensor file.</li>
+</ul>
+</li>
+<li><code>set ds_repo &lt;HF Dataset Repository ID&gt;</code>: Sets the dataset repository ID to the specified string.<ul>
+<li>This is the source for downloading the datasets.</li>
+</ul>
+</li>
+<li><code>set streamlit_repo &lt;HF Spaces Streamlit App Repository ID&gt;</code>: Sets the Streamlit App repo ID in the pyproject.toml file.</li>
+<li><code>set space_url &lt;HF Spaces base URL&gt;</code>: Sets the base URL for HF Spaces in the pyproject.toml file.</li>
+<li><code>set model_url &lt;HF Model Repo base URL&gt;</code>: Sets the base URL for HF Model Repos in the pyproject.toml file.</li>
+<li><code>set dataset_url &lt;HF Dataset Repo base URL&gt;</code>:  Sets the base URL for HF Dataset Repos in the pyproject.toml file.</li>
+<li><code>set hf_token &lt;HF Token&gt;</code>: Sets the HF personal token in the pyproject.toml file.</li>
+</ul>
+<hr />
+<h2 id="structure">Structure</h2>
 <pre><code>├── data
 │   ├── interim                 &lt;- Intermediate datasets that have been normalized
 │   ├── normalization_schema    &lt;- The schema used for normalizing 3rd party datasets
@@ -188,60 +222,18 @@
         <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
     </a>
 </span></p>
-<h3 id="project-model-and-dataset-repositories">Project Model and Dataset Repositories</h3>
-<h4 id="model-repositories">Model Repositories</h4>
-<table>
-<thead>
-<tr>
-<th>Fine-tuned Model</th>
-<th>Base Model</th>
-<th>Repository Link</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Binary Classification Model</td>
-<td>BERT</td>
-<td><a href="https://huggingface.co/dlsmallw/NLPinitiative-Binary-Classification">NLPinitiative-Binary-Classification</a></td>
-</tr>
-<tr>
-<td>Multilabel Regression Model</td>
-<td>BERT</td>
-<td><a href="https://huggingface.co/dlsmallw/NLPinitiative-Multilabel-Regression">NLPinitiative-Multilabel-Regression</a></td>
-</tr>
-</tbody>
-</table>
-<h4 id="dataset-repository">Dataset Repository</h4>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>Repository Link</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Dataset Repository</td>
-<td><a href="https://huggingface.co/datasets/dlsmallw/NLPinitiative-Dataset">NLPinitiative-Dataset</a></td>
-</tr>
-</tbody>
-</table>
 <hr />
-<h2 id="project-setup">Project Setup</h2>
-<p>The Makefile contains the central entry points for common tasks related to this project.</p>
-<hr />
-<h2 id="datasets-used">Datasets Used</h2>
-<h3 id="ethos-multi-label-hate-speech-detection-dataset"><a href="https://doi.org/10.1007/s40747-021-00608-2">Ethos</a> - multi-lab<strong>E</strong>l ha<strong>T</strong>e speec<strong>H</strong> detecti<strong>O</strong>n data<strong>S</strong>et</h3>
+<h2 id="datasets">Datasets</h2>
+<h3 id="ethos">ETHOS</h3>
 <p>A collection consisting of binary and multilabel data containing hate speech from social media.</p>
-<h4 id="links">Links</h4>
 <ul>
-<li><a href="https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset">GitHub Repository</a><ul>
-<li><a href="https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset/blob/master/ethos/ethos_data/Ethos_Dataset_Binary.csv">Binary Dataset</a></li>
-<li><a href="https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset/blob/master/ethos/ethos_data/Ethos_Dataset_Multi_Label.csv">Multilabel Dataset</a></li>
+<li><a href="https://doi.org/10.1007/s40747-021-00608-2">Academic Article</a></li>
+<li><a href="https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset">Link to Source GitHub Repository</a><ul>
+<li><a href="https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset/blob/master/ethos/ethos_data/Ethos_Dataset_Binary.csv">Direct Link to the Binary Dataset</a></li>
+<li><a href="https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset/blob/master/ethos/ethos_data/Ethos_Dataset_Multi_Label.csv">Direct Link to the Multilabel Dataset</a></li>
 </ul>
 </li>
 </ul>
-<h4 id="bibtex-reference">BibTeX Reference</h4>
 <pre><code class="language-bibtex">@article{mollas_ethos_2022,
     title = {{ETHOS}: a multi-label hate speech detection dataset},
     issn = {2198-6053},
@@ -253,16 +245,15 @@
     year = {2022},
 }
 </code></pre>
-<h3 id="multitarget-conan"><a href="https://doi.org/10.1007/s40747-021-00608-2">Multitarget-CONAN</a></h3>
+<h3 id="multitarget-conan">Multitarget-CONAN</h3>
 <p>Multi-Target CONAN is a dataset of hate speech/counter-narrative pairs for English comprising several hate targets, collected using a Human-in-the-Loop approach.</p>
-<h4 id="links_1">Links</h4>
 <ul>
-<li><a href="https://github.com/marcoguerini/CONAN">GitHub Repository</a><ul>
-<li><a href="https://github.com/marcoguerini/CONAN/blob/master/Multitarget-CONAN/Multitarget-CONAN.csv">Multitarget-CONAN Dataset</a></li>
+<li><a href="https://doi.org/10.1007/s40747-021-00608-2">Academic Article</a></li>
+<li><a href="https://github.com/marcoguerini/CONAN">Link to Source GitHub Repository</a><ul>
+<li><a href="https://github.com/marcoguerini/CONAN/blob/master/Multitarget-CONAN/Multitarget-CONAN.csv">Direct Link to the Dataset</a></li>
 </ul>
 </li>
 </ul>
-<h4 id="bibtex-reference_1">BibTeX Reference</h4>
 <pre><code class="language-bibtex">@inproceedings{fanton-2021-human,
   title=&quot;{Human-in-the-Loop for Data Collection: a Multi-Target Counter Narrative Dataset to Fight Online Hate Speech}&quot;,
   author=&quot;{Fanton, Margherita and Bonaldi, Helena and Tekiroğlu, Serra Sinem and Guerini, Marco}&quot;,
@@ -272,6 +263,13 @@
   publisher = &quot;Association for Computational Linguistics&quot;,
 }
 </code></pre>
+<hr />
+<h2 id="license">License</h2>
+<p>The MIT License (MIT)
+Copyright (c) 2025, ASU Fall-2024/Spring-2025 Capstone Group 8 and The J Healthcare Initiative</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <hr />
               
             </div>
@@ -318,8 +316,3 @@
 
 </body>
 </html>
-
-<!--
-MkDocs version : 1.6.1
-Build Date UTC : 2025-04-08 06:16:29.110301+00:00
--->
