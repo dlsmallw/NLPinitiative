@@ -267,6 +267,7 @@ help() {
     echo "      set space_url <base URL>        - Sets the base URL for HF Spaces in the pyproject.toml file."
     echo "      set model_url <base URL>        - Sets the base URL for HF Model Repos in the pyproject.toml file."
     echo "      set dataset_url <base URL>      - Sets the base URL for HF Dataset Repos in the pyproject.toml file."
+    echo "      set hf_token <HF Token>         - Sets the HF personal token in the pyproject.toml file."
 }
 
 log_info "Loading setup.sh script..."

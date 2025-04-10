@@ -3,7 +3,8 @@ site_name: NLPInitiative
 site_author: ASU Capstone Group 8 / J Healthcare Initiative
 # 
 nav:
-  - Home: index.md
+  - About: 
+    - About This Project: index.md
   - User Guide:
     - Data Importing and Normalization: notebooks/Data_Import_Notes.ipynb
     - Data Preprocessing and Tokenization: notebooks/Data_Processing.ipynb
