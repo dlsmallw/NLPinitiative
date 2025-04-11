@@ -206,10 +206,20 @@ run() {
             coverage html
             log_info "Tests complete. Check coverage report in htmlcov/index.html"
             ;;
+        ds_sync)
+            log_info "Syncing dataset data..."
+            python ./nlpinitiative/data_preparation/data_management.py
+            ;;
+        model_sync)
+            log_info "Syncing model data..."
+            python ./nlpinitiative/modeling/train.py
+            ;;
         *)
             log_error "Invalid run option."
             echo "Available 'run' options:"
             echo "  tests - Runs the test suite."
+            echo "  ds_sync - Syncs the dataset data."
+            echo "  model_sync - Syncs the model data."
             ;;
     esac
 }
@@ -253,6 +263,8 @@ help() {
     echo "      lint        - Lints the project files."
     echo "      format      - Corrects the files identified while linting."
     echo "      run tests   - Runs the test suite."
+    echo "      run ds_sync - Syncs the dataset data."
+    echo "      run model_sync - Syncs the model data."
     echo "==========================================="
     echo "  'docs' command options:"
     echo "      docs build      - Generates mkdocs for the project."

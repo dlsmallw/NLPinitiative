@@ -6,7 +6,10 @@ from nltk import sent_tokenize
 from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-from nlpinitiative.config import MODELS_DIR
+from nlpinitiative.config import (
+    BIN_OUTPUT_DIR, 
+    ML_OUTPUT_DIR
+)
 
 
 class InferenceHandler:
@@ -14,8 +17,8 @@ class InferenceHandler:
 
     def __init__(
         self,
-        bin_model_path: Path = MODELS_DIR / "binary_classification/best_model",
-        ml_regr_model_path: Path = MODELS_DIR / "multilabel_regression/best_model",
+        bin_model_path: Path = BIN_OUTPUT_DIR,
+        ml_regr_model_path: Path = ML_OUTPUT_DIR,
     ):
         """Constructor for instantiating an InferenceHandler object.
 
@@ -28,9 +31,7 @@ class InferenceHandler:
         """
 
         self.bin_tokenizer, self.bin_model = self.init_model_and_tokenizer(bin_model_path)
-        self.ml_regr_tokenizer, self.ml_regr_model = self.init_model_and_tokenizer(
-            ml_regr_model_path
-        )
+        self.ml_regr_tokenizer, self.ml_regr_model = self.init_model_and_tokenizer(ml_regr_model_path)
 
     def init_model_and_tokenizer(self, model_path: Path):
         """Initializes a model and tokenizer for use in inference using the models path.
@@ -46,15 +47,8 @@ class InferenceHandler:
             A tuple containing the tokenizer and model objects.
         """
 
-        with open(model_path / "config.json") as config_file:
-            config_json = json.load(config_file)
-        model_name = config_json["_name_or_path"]
-        model_type = config_json["model_type"]
-
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForSequenceClassification.from_pretrained(
-            model_path, model_type=model_type
-        )
+        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        model = AutoModelForSequenceClassification.from_pretrained(model_path)
         model.eval()
 
         return tokenizer, model

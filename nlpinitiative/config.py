@@ -74,9 +74,6 @@ NORM_SCHEMA_DIR = DATA_DIR / "normalization_schema"
 ## Testing Directories
 TEST_DATA_DIR = PROJ_ROOT / "test" / "test_files"
 
-## Model directories
-MODELS_DIR = PROJ_ROOT / "models"
-
 ## tokenizer config
 SPECIAL_TOKENS = ["[UNK]", "[PAD]", "[CLS]", "[SEP]", "[MASK]"]
 GENERATOR_BATCH_SIZE = 1000
@@ -95,6 +92,11 @@ BIN_REPO = config["repositories"]["bin_repo"]
 ML_REPO = config["repositories"]["ml_repo"]
 DATASET_REPO = config["repositories"]["ds_repo"]
 STREAMLIT_REPO = config["repositories"]["streamlit_repo"]
+
+## Model directories
+MODELS_DIR = PROJ_ROOT / "models"
+BIN_OUTPUT_DIR = MODELS_DIR / BIN_REPO
+ML_OUTPUT_DIR = MODELS_DIR / ML_REPO
 
 ## Tokens
 HF_TOKEN = get_key(dotenv_path, "HF_TOKEN")

@@ -2,9 +2,10 @@
 It also includes the DatasetContainer and DatasetRecordManager classes for organizing dataset information and managing dataset records, respectively."""
 
 import os
+import typer
+import validators
 import pandas as pd
 import huggingface_hub as hfh
-import validators
 
 from pathlib import Path
 from loguru import logger
@@ -26,10 +27,12 @@ from nlpinitiative.config import (
     CATEGORY_LABELS,
     DEF_MODEL,
     TEST_DATA_DIR,
+    HF_TOKEN
 )
 
 ACCEPTED_FILE_FORMATS = [".csv", ".xlsx", ".json"]
 
+app = typer.Typer()
 
 class DataManager:
     """A class for handling data import, normalization and preprocessing/tokenization."""
@@ -37,6 +40,7 @@ class DataManager:
     def __init__(self):
         """Contructor method for instantiating a DataManager object."""
 
+        self.pull_dataset_repo()
         self.normalizer = DataNormalizer()
         self.processor = DataProcessor()
         self.rec_mgr = DatasetRecordManager()
@@ -408,33 +412,31 @@ class DataManager:
             overwrite=True,
         )
 
-    def pull_dataset_repo(self, token: str):  # pragma: no cover
+    def pull_dataset_repo(self, token: str = HF_TOKEN, dest: Path = DATA_DIR):  # pragma: no cover
         """Pulls the data directory from the linked Hugging Face Dataset Repository.
 
         Parameters
         ----------
-        token : str
-            A Hugging Face token with read/write access privileges to allow importing the data.
+        token : str, optional
+            A Hugging Face token with read/write access privileges to allow importing the data (default is HF_TOKEN).
+        dest : Path, optional
+            The destination directory for the dataset (default is data).
         """
 
-        if token is not None:
-            hfh.snapshot_download(
-                repo_id=DATASET_REPO, repo_type="dataset", local_dir=DATA_DIR, token=token
-            )
+        sync_data(token, dest)
 
-    def push_dataset_dir(self, token: str):  # pragma: no cover
+    def push_dataset_dir(self, token: str = HF_TOKEN, dest: Path = DATA_DIR):  # pragma: no cover
         """Pushes the data directory (all dataset information) to the linked Hugging Face Dataset Repository.
 
         Parameters
         ----------
-        token : str
-            A Hugging Face token with read/write access privileges to allow importing the data.
+        token : str, optional
+            A Hugging Face token with read/write access privileges to allow importing the data (default is HF_TOKEN).
+        dest : Path, optional
+            The destination directory for the dataset (default is data).
         """
 
-        if token is not None:
-            hfh.upload_folder(
-                repo_id=DATASET_REPO, repo_type="dataset", folder_path=DATA_DIR, token=token
-            )
+        push_data(token, dest)
 
     # Data Preparation Functionality
     # ===================================================================================================================
@@ -813,3 +815,67 @@ class DatasetRecordManager:  # pragma: no cover
             err_msg = f"Failed to retrieve row of Dataset Record - {e}"
             logger.error(err_msg)
             raise Exception(err_msg)
+        
+def sync_data(token: str, dest: Path = DATA_DIR):  # pragma: no cover
+    """Pulls the data directory from the linked Hugging Face Dataset Repository.
+
+    Parameters
+    ----------
+    token : str
+        A Hugging Face token with read/write access privileges to allow importing the data.
+    """
+
+    try:
+        if token is not None:
+            hfh.snapshot_download(
+                repo_id=DATASET_REPO, repo_type="dataset", local_dir=dest, token=token
+            )
+        elif HF_TOKEN is not None and HF_TOKEN != "":
+            hfh.snapshot_download(
+                repo_id=DATASET_REPO, repo_type="dataset", local_dir=dest, token=HF_TOKEN
+            )
+        else:
+            raise ValueError("No token provided. Please provide a valid Hugging Face token.")
+    except Exception as e:
+        logger.error(f'Failed to pull dataset repository: {e}')
+        raise e
+        
+
+def push_data(token: str, dest: Path = DATA_DIR):  # pragma: no cover
+    """Pushes the data directory (all dataset information) to the linked Hugging Face Dataset Repository.
+
+    Parameters
+    ----------
+    token : str
+        A Hugging Face token with read/write access privileges to allow importing the data.
+    """
+    try:
+        if token is not None:
+            hfh.upload_folder(
+                repo_id=DATASET_REPO, repo_type="dataset", folder_path=dest, token=token
+            )
+        elif HF_TOKEN is not None and HF_TOKEN != "":
+            hfh.upload_folder(
+                repo_id=DATASET_REPO, repo_type="dataset", folder_path=dest, token=HF_TOKEN
+            )
+        else:
+            raise ValueError("No token provided. Please provide a valid Hugging Face token.")
+    except Exception as e:
+        logger.error(f'Failed to push dataset directory: {e}')
+        raise e
+
+
+@app.command()
+def main():  # pragma: no cover
+    """Facilitates synchronization of the dataset repository with the local data directory."""
+
+    print(HF_TOKEN)
+
+    try:
+        sync_data(token=HF_TOKEN, dest=DATA_DIR)
+    except Exception as e:
+        logger.error(f"Failed to pull dataset repository: {e}")
+        raise e
+
+if __name__ == "__main__":  # pragma: no cover
+    app()

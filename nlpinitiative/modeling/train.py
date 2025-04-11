@@ -1,6 +1,13 @@
 """This module contains the training logic for the binary classification and multilabel regression models."""
 
+import os
+import typer
+import validators
+import huggingface_hub as hfh
+
+
 from pathlib import Path
+from loguru import logger
 from scipy.stats import pearsonr
 import numpy as np
 import torch
@@ -8,7 +15,16 @@ import json
 
 import huggingface_hub as hfh
 
-from nlpinitiative.config import MODELS_DIR, DEF_MODEL, CATEGORY_LABELS, BIN_REPO, ML_REPO
+from nlpinitiative.config import (
+    HF_TOKEN, 
+    MODELS_DIR, 
+    DEF_MODEL, 
+    CATEGORY_LABELS, 
+    BIN_REPO, 
+    ML_REPO, 
+    BIN_OUTPUT_DIR, 
+    ML_OUTPUT_DIR
+)
 
 from sklearn.metrics import (
     precision_recall_fscore_support,
@@ -22,7 +38,7 @@ from sklearn.metrics import (
 
 from transformers import AutoModelForSequenceClassification, Trainer, TrainingArguments
 
-
+app = typer.Typer()
 class RegressionTrainer(Trainer):  # pragma: no cover
     """A custom class for overriding the compute_loss method used in regression model training."""
 
@@ -135,77 +151,12 @@ def compute_reg_metrics(eval_predictions):  # pragma: no cover
     }
 
 
-def _train_args(
-    output_dir: Path,
-    eval_strat: str,
-    save_strat: str,
-    logging_steps: int,
-    save_steps: int,
-    learn_rate: float,
-    batch_sz: int,
-    num_train_epochs: int,
-    weight_decay: float,
-    best_model_at_end: bool,
-    best_model_metric: str,
-    greater_better: bool,
-):
-    """Generates training arguments for use in model training.
-
-    Parameters
-    ----------
-    output_dir : Path
-        The output directory to store the trained model.
-    eval_strat : str
-        The evaluation strategy (i.e., steps/epochs).
-    save_strat : str
-        The save strategy (i.e., steps/epochs).
-    logging_steps : int
-        The periodicity for which logging will occur.
-    save_steps : int
-        The step periodicity for which a model will be saved.
-    learn_rate : float
-        A hyper parameter for determining model parameter adjustment during training.
-    batch_sz : int
-        The training data batch sizes.
-    num_train_epochs : int
-        The number of training epochs to be performed.
-    weight_decay : float
-        The weight decay to apply.
-    best_model_at_end : bool
-        True if the best model is to be saved at the completion of model training, False otherwise.
-    best_model_metric : str
-        The metric used for determining the best performing model.
-    greater_better : bool
-        True for if the better performing model should have the greater value (based on the specified metric), False otherwise.
-
-    Returns
-    -------
-    TrainingArguments
-        The training arguments object used for conducting model training.
-    """
-
-    return TrainingArguments(
-        output_dir=output_dir,
-        eval_strategy=eval_strat,
-        save_strategy=save_strat,
-        logging_steps=logging_steps,
-        save_steps=save_steps,
-        learning_rate=learn_rate,
-        per_device_train_batch_size=batch_sz,
-        per_device_eval_batch_size=batch_sz,
-        num_train_epochs=num_train_epochs,
-        weight_decay=weight_decay,
-        load_best_model_at_end=best_model_at_end,
-        metric_for_best_model=best_model_metric,
-        greater_is_better=greater_better,
-        overwrite_output_dir=True,
-        save_on_each_node=True,
-        save_total_limit=5,
-    )
-
-
 def bin_train_args(
-    output_dir: Path = MODELS_DIR / "binary_classification",
+    output_dir: Path = BIN_OUTPUT_DIR,
+    hub_model_id: str = BIN_REPO,
+    push_to_hub: bool = True,
+    hub_strategy: str = "all_checkpoints",
+    hub_token: str = None,
     eval_strat: str = "steps",
     save_strat: str = "steps",
     logging_steps: int = 500,
@@ -217,6 +168,9 @@ def bin_train_args(
     best_model_at_end: bool = True,
     best_model_metric: str = "f1",
     greater_better: bool = True,
+    overwrite_output_dir: bool = True,
+    save_on_each_node: bool = True,
+    save_total_limit: int = 5,
 ):
     """Generates training arguments for use in binary classification model training.
 
@@ -224,6 +178,14 @@ def bin_train_args(
     ----------
     output_dir : str, optional
         The output directory to store the trained model (default is models/binary_classification).
+    hub_model_id : str, optional
+        The Hugging Face model repository ID to push the model to (default is BIN_REPO).
+    push_to_hub : bool, optional
+        True if the model should be pushed to the Hugging Face Model Hub, False otherwise (default is True).
+    hub_strategy : str, optional
+        The strategy for pushing the model to the Hugging Face Model Hub (default is 'all_checkpoints').
+    hub_token : str, optional
+        A Hugging Face token with read/write access privileges to allow exporting the trained model (default is None).
     eval_strat : str, optional
         The evaluation strategy (default is 'steps').
     save_strat : str, optional
@@ -246,6 +208,12 @@ def bin_train_args(
         The metric used for determining the best performing model (default is 'f1').
     greater_better : bool, optional
         True for if the better performing model should have the greater value (based on the specified metric), False otherwise (default is True).
+    overwrite_output_dir : bool, optional
+        True if the output directory should be overwritten, False otherwise (default is True).
+    save_on_each_node : bool, optional
+        True if the model should be saved on each node, False otherwise (default is True).
+    save_total_limit : int, optional
+        The maximum number of checkpoints to keep (default is 5).
 
     Returns
     -------
@@ -253,24 +221,48 @@ def bin_train_args(
         The training arguments object used for conducting binary classification model training.
     """
 
-    return _train_args(
-        output_dir,
-        eval_strat,
-        save_strat,
-        logging_steps,
-        save_steps,
-        learn_rate,
-        batch_sz,
-        num_train_epochs,
-        weight_decay,
-        best_model_at_end,
-        best_model_metric,
-        greater_better,
+    if push_to_hub:
+        if hub_token is None and (HF_TOKEN is None or HF_TOKEN == ""):
+            raise ValueError(
+                "No token provided. Please provide a valid Hugging Face token."
+            )
+        if hub_model_id is None or hub_model_id == "":
+            raise ValueError("No model repository specified. Please provide a valid Hugging Face model repository.")
+    else:
+        hub_model_id = None
+        hub_strategy = None
+        hub_token = None
+
+    return TrainingArguments(
+        output_dir=output_dir,
+        hub_model_id=hub_model_id,
+        push_to_hub=push_to_hub,
+        hub_strategy=hub_strategy,
+        hub_token=hub_token,
+        eval_strategy=eval_strat,
+        save_strategy=save_strat,
+        logging_steps=logging_steps,
+        save_steps=save_steps,
+        learning_rate=learn_rate,
+        per_device_train_batch_size=batch_sz,
+        per_device_eval_batch_size=batch_sz,
+        num_train_epochs=num_train_epochs,
+        weight_decay=weight_decay,
+        load_best_model_at_end=best_model_at_end,
+        metric_for_best_model=best_model_metric,
+        greater_is_better=greater_better,
+        overwrite_output_dir=overwrite_output_dir,
+        save_on_each_node=save_on_each_node,
+        save_total_limit=save_total_limit,
     )
 
 
 def ml_regr_train_args(
-    output_dir: Path = MODELS_DIR / "multilabel_regression",
+    output_dir: Path = ML_OUTPUT_DIR,
+    hub_model_id: str = ML_REPO,
+    push_to_hub: bool = True,
+    hub_strategy: str = "all_checkpoints",
+    hub_token: str = None,
     eval_strat: str = "steps",
     save_strat: str = "steps",
     logging_steps: int = 500,
@@ -282,6 +274,9 @@ def ml_regr_train_args(
     best_model_at_end: bool = True,
     best_model_metric: str = "eval_mean_rmse",
     greater_better: bool = False,
+    overwrite_output_dir: bool = True,
+    save_on_each_node: bool = True,
+    save_total_limit: int = 5,
 ):
     """Generates training arguments for use in multilabel regression model training.
 
@@ -289,6 +284,14 @@ def ml_regr_train_args(
     ----------
     output_dir : str, optional
         The output directory to store the trained model (default is models/multilabel_regression).
+    hub_model_id : str, optional
+        The Hugging Face model repository ID to push the model to (default is BIN_REPO).
+    push_to_hub : bool, optional
+        True if the model should be pushed to the Hugging Face Model Hub, False otherwise (default is True).
+    hub_strategy : str, optional
+        The strategy for pushing the model to the Hugging Face Model Hub (default is 'all_checkpoints').
+    hub_token : str, optional
+        A Hugging Face token with read/write access privileges to allow exporting the trained model (default is None).
     eval_strat : str, optional
         The evaluation strategy (default is 'steps').
     save_strat : str, optional
@@ -311,6 +314,12 @@ def ml_regr_train_args(
         The metric used for determining the best performing model (default is 'eval_mean_rmse').
     greater_better : bool, optional
         True for if the better performing model should have the greater value (based on the specified metric), False otherwise (default is False).
+    overwrite_output_dir : bool, optional
+        True if the output directory should be overwritten, False otherwise (default is True).
+    save_on_each_node : bool, optional
+        True if the model should be saved on each node, False otherwise (default is True).
+    save_total_limit : int, optional
+        The maximum number of checkpoints to keep (default is 5).
 
     Returns
     -------
@@ -318,19 +327,39 @@ def ml_regr_train_args(
         The training arguments object used for conducting multilabel regression model training.
     """
 
-    return _train_args(
-        output_dir,
-        eval_strat,
-        save_strat,
-        logging_steps,
-        save_steps,
-        learn_rate,
-        batch_sz,
-        num_train_epochs,
-        weight_decay,
-        best_model_at_end,
-        best_model_metric,
-        greater_better,
+    if push_to_hub:
+        if hub_token is None and (HF_TOKEN is None or HF_TOKEN == ""):
+            raise ValueError(
+                "No token provided. Please provide a valid Hugging Face token."
+            )
+        if hub_model_id is None or hub_model_id == "":
+            raise ValueError("No model repository specified. Please provide a valid Hugging Face model repository.")
+    else:
+        hub_model_id = None
+        hub_strategy = None
+        hub_token = None
+
+    return TrainingArguments(
+        output_dir=output_dir,
+        hub_model_id=hub_model_id,
+        push_to_hub=push_to_hub,
+        hub_strategy=hub_strategy,
+        hub_token=hub_token,
+        eval_strategy=eval_strat,
+        save_strategy=save_strat,
+        logging_steps=logging_steps,
+        save_steps=save_steps,
+        learning_rate=learn_rate,
+        per_device_train_batch_size=batch_sz,
+        per_device_eval_batch_size=batch_sz,
+        num_train_epochs=num_train_epochs,
+        weight_decay=weight_decay,
+        load_best_model_at_end=best_model_at_end,
+        metric_for_best_model=best_model_metric,
+        greater_is_better=greater_better,
+        overwrite_output_dir=overwrite_output_dir,
+        save_on_each_node=save_on_each_node,
+        save_total_limit=save_total_limit,
     )
 
 
@@ -369,8 +398,7 @@ def get_ml_model(model_name: str = DEF_MODEL):
         model_name, num_labels=len(CATEGORY_LABELS)
     )
 
-
-def train(bin_trainer: Trainer, ml_trainer: Trainer, token: str = None):  # pragma: no cover
+def train(bin_trainer: Trainer, ml_trainer: Trainer):  # pragma: no cover
     """Performs training on the binary classification and multilabel regression models.
 
     Parameters
@@ -379,8 +407,6 @@ def train(bin_trainer: Trainer, ml_trainer: Trainer, token: str = None):  # prag
         The trainer object for performing binary classification model training.
     ml_trainer : Trainer
         The trainer object for performing multilabel regression model training.
-    token : str, optional
-            A Hugging Face token with read/write access privileges to allow exporting the trained models (default is None).
 
     Returns
     -------
@@ -389,18 +415,10 @@ def train(bin_trainer: Trainer, ml_trainer: Trainer, token: str = None):  # prag
     """
 
     bin_trainer.train()
-    bin_model = bin_trainer.model
-    bin_model.save_pretrained(save_directory=MODELS_DIR / "binary_classification" / "best_model")
-
     ml_trainer.train()
-    ml_model = ml_trainer.model
-    ml_model.save_pretrained(save_directory=MODELS_DIR / "multilabel_regression" / "best_model")
-
-    if token:
-        upload_best_models(token=token)
-
     bin_eval = bin_trainer.evaluate()
     ml_eval = ml_trainer.evaluate()
+
     return bin_eval, ml_eval
 
 
@@ -448,3 +466,34 @@ def upload_best_models(token: str):  # pragma: no cover
         repo_id=ML_REPO,
         token=token,
     )
+
+def sync_with_model_repos(): # pragma: no cover
+    """Synchronizes the model directory with the Hugging Face Model Repositories."""
+
+    if HF_TOKEN is None or HF_TOKEN == "":
+        raise ValueError("No token provided. Please provide a valid Hugging Face token.")
+        
+    try:
+        hfh.snapshot_download(repo_id=BIN_REPO, repo_type="model", local_dir=BIN_OUTPUT_DIR, token=HF_TOKEN)
+        logger.info(f"Successfully downloaded binary classification model from {BIN_REPO}.")
+    except Exception as e:
+        logger.error(f"Error downloading binary classification model: {e}")
+
+    try:
+        hfh.snapshot_download(repo_id=ML_REPO, repo_type="model", local_dir=ML_OUTPUT_DIR, token=HF_TOKEN)
+        logger.info(f"Successfully downloaded multilabel regression model from {ML_REPO}.")
+    except Exception as e:
+        logger.error(f"Error downloading multilabel regression model: {e}")
+
+@app.command()
+def main():  # pragma: no cover
+    """Facilitates synchronization with the remote HF model repositories."""
+
+    try:
+        sync_with_model_repos()
+    except Exception as e:
+        logger.error(f"Failed to sync with remote model repositories: {e}")
+        raise e
+
+if __name__ == "__main__":  # pragma: no cover
+    app()
