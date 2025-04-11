@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="ASU Capstone Group 8 / J Healthcare Initiative" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="ASU Fall-2024/Spring-2025 Capstone Group 8 with The J Healthcare Initiative" />
       <link rel="shortcut icon" href="img/favicon.ico" />
     <title>About This Project - NLPInitiative</title>
     <link rel="stylesheet" href="css/theme.css" />
@@ -137,20 +137,35 @@
 <p>This script can be activated by entering <code>source ./setup.sh</code> within the bash shell while within the project source directory.</p>
 <h4 id="commands">Commands</h4>
 <ul>
-<li><code>help</code>: Displays all of the commands that can be used.</li>
-<li><code>build</code>: This will setup a virtual environment within the project source directory and install all necessary dependencies for development.</li>
-<li><code>clean</code>: This will deactivate the virutal environment, and remove the .venv directory (uninstalling all dependencies).</li>
-<li><code>docs build</code>: Parses the docstrings in the project and generates the project documentation using mkdocs.</li>
-<li><code>docs serve</code>: Serves the mkdocs documentation to a local dev server that can be opened in a browser.</li>
-<li><code>docs deploy</code>: Deploys the mkdocs documentation to the linked GitHub repositories 'GitHub Pages'.</li>
-<li><code>lint</code>: Lints (analyzes and identifies style/format issues to correct) the project files.</li>
+<li><code>help</code>:  Displays all of the commands that can be used.</li>
+<li>Building/Cleaning Project Structure:<ul>
+<li><code>build</code>:  This will setup a virtual environment within the project source directory and install all necessary dependencies for development.</li>
+<li><code>clean</code>:  This will deactivate the virutal environment, and remove the .venv directory (uninstalling all dependencies).</li>
+</ul>
+</li>
+<li>Documentation Generation and Deployment:<ul>
+<li><code>docs build</code>:     Parses the docstrings in the project and generates the project documentation using mkdocs.</li>
+<li><code>docs serve</code>:     Serves the mkdocs documentation to a local dev server that can be opened in a browser.</li>
+<li><code>docs deploy</code>:    Deploys the mkdocs documentation to the linked GitHub repositories 'GitHub Pages'.</li>
+</ul>
+</li>
+<li>Linting and Format Correction:<ul>
+<li><code>lint</code>:   Lints (analyzes and identifies style/format issues to correct) the project files.</li>
 <li><code>format</code>: Corrects the issues identified from running the lint command.</li>
-<li><code>run tests</code>: Runs the test suite..</li>
-<li><code>set bin_repo &lt;HF Model Repository ID&gt;</code>: Sets the binary model repository ID to the specified string.<ul>
+</ul>
+</li>
+<li>Run Commands (testing, and synching with HF hub repositories).<ul>
+<li><code>run tests</code>:      Runs the test suite.</li>
+<li><code>run ds_sync</code>:    Syncs the dataset data.</li>
+<li><code>run model_sync</code>: Syncs the model data.</li>
+</ul>
+</li>
+<li>Configuration Editting:<ul>
+<li><code>set bin_repo &lt;HF Model Repository ID&gt;</code>:  Sets the binary model repository ID to the specified string.<ul>
 <li>This is the source for downloading the model tensor file.</li>
 </ul>
 </li>
-<li><code>set ml_repo &lt;HF Model Repository ID&gt;</code>: Sets the multilabel regression model repository ID to the specified string.<ul>
+<li><code>set ml_repo &lt;HF Model Repository ID&gt;</code>:   Sets the multilabel regression model repository ID to the specified string.<ul>
 <li>This is the source for downloading the model tensor file.</li>
 </ul>
 </li>
@@ -164,6 +179,8 @@
 <li><code>set dataset_url &lt;HF Dataset Repo base URL&gt;</code>:  Sets the base URL for HF Dataset Repos in the pyproject.toml file.</li>
 <li><code>set hf_token &lt;HF Token&gt;</code>: Sets the HF personal token in the pyproject.toml file.</li>
 </ul>
+</li>
+</ul>
 <hr />
 <h2 id="structure">Structure</h2>
 <pre><code>├── data
@@ -173,7 +190,9 @@
 │   └── raw                     &lt;- The original, raw datasets prior to normalization
 │
 ├── docs            &lt;- A directory containing documentation used for generating and serving 
-│                      project documentation
+│   |                  project documentation
+│   └─ notebooks    &lt;- Directory containing Jupyter notebooks detailing research, testing and 
+│                      example usage of project modules 
 │
 ├── models          &lt;- Trained and serialized models, model predictions, or model summaries
 │   │
@@ -192,11 +211,10 @@
 │       ├── predict.py          &lt;- Code to run model inference with trained models          
 │       └── train.py            &lt;- Code to train models
 │
-├── notebooks           &lt;- Directory containing Jupyter notebooks detailing research, testing and 
-│                          example usage of project modules 
-│
 ├── references          &lt;- Directory containing Data dictionaries, manuals, and all other 
 │                          explanatory materials
+│
+├── test                &lt;- Directory containing unit test files
 │
 ├── LICENSE             &lt;- Open-source license if one is chosen
 │

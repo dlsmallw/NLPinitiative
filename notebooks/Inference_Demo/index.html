@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="ASU Capstone Group 8 / J Healthcare Initiative" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="ASU Fall-2024/Spring-2025 Capstone Group 8 with The J Healthcare Initiative" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
     <title>Model Inference - NLPInitiative</title>
     <link rel="stylesheet" href="../../css/theme.css" />
@@ -540,13 +540,13 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [1]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
 <clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-1">
@@ -564,6 +564,21 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </pre></div>
 <div class="clipboard-copy-txt" id="cell-1">import json
 from nlpinitiative.modeling import predict</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre><span class="ansi-green-fg">2025-04-11 18:59:09.928</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">nlpinitiative.config</span>:<span class="ansi-cyan-fg">&lt;module&gt;</span>:<span class="ansi-cyan-fg">18</span> - <span class="ansi-bold">PROJ_ROOT path is: C:\Users\Daniel\Desktop\GitHub\NLPinitiative</span>
+<span class="ansi-green-fg">2025-04-11 18:59:09.929</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">nlpinitiative.config</span>:<span class="ansi-cyan-fg">&lt;module&gt;</span>:<span class="ansi-cyan-fg">25</span> - <span class="ansi-bold">Loading pyproject.toml...</span>
+<span class="ansi-green-fg">2025-04-11 18:59:09.930</span> | <span class="ansi-green-intense-fg ansi-bold">SUCCESS </span> | <span class="ansi-cyan-fg">nlpinitiative.config</span>:<span class="ansi-cyan-fg">&lt;module&gt;</span>:<span class="ansi-cyan-fg">61</span> - <span class="ansi-green-intense-fg ansi-bold">pyproject.toml loaded successfully.</span>
+</pre>
 </div>
 </div>
 </div>
@@ -586,7 +601,7 @@ from nlpinitiative.modeling import predict</div>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
 <clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-2">
@@ -624,7 +639,7 @@ from nlpinitiative.modeling import predict</div>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div><div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="CodeMirror cm-s-jupyter">
 <div class="zeroclipboard-container">
 <clipboard-copy ,="" aria-label="Copy to Clipboard" for="cell-3">
@@ -679,12 +694,12 @@ print(json.dumps(result2, indent=4))</div>
                 "prediction_class": 1
             },
             "multilabel_regression": {
-                "Gender": 0.0048244670033454895,
+                "Gender": 0.007968677207827568,
                 "Race": 0.0,
                 "Sexuality": 0.0,
                 "Disability": 0.0,
                 "Religion": 1.0,
-                "Unspecified": 0.004335478879511356
+                "Unspecified": 0.0004662546853069216
             }
         },
         {
@@ -694,12 +709,12 @@ print(json.dumps(result2, indent=4))</div>
                 "prediction_class": 1
             },
             "multilabel_regression": {
-                "Gender": 0.012726540677249432,
-                "Race": 0.10717015713453293,
+                "Gender": 0.0,
+                "Race": 0.15429753065109253,
                 "Sexuality": 0.0,
-                "Disability": 0.008952051401138306,
-                "Religion": 0.9168018102645874,
-                "Unspecified": 0.005039580632001162
+                "Disability": 0.0,
+                "Religion": 0.9524716734886169,
+                "Unspecified": 0.0
             }
         },
         {
@@ -709,12 +724,12 @@ print(json.dumps(result2, indent=4))</div>
                 "prediction_class": 1
             },
             "multilabel_regression": {
-                "Gender": 0.04350072145462036,
-                "Race": 0.011553023010492325,
+                "Gender": 0.0034651216119527817,
+                "Race": 0.10907230526208878,
                 "Sexuality": 0.0,
                 "Disability": 0.0,
-                "Religion": 0.8144100308418274,
-                "Unspecified": 0.014169543981552124
+                "Religion": 0.9691120982170105,
+                "Unspecified": 0.0
             }
         }
     ]

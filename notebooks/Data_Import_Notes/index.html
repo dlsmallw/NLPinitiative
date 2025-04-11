@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="ASU Capstone Group 8 / J Healthcare Initiative" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="ASU Fall-2024/Spring-2025 Capstone Group 8 with The J Healthcare Initiative" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
     <title>Data Importing and Normalization - NLPInitiative</title>
     <link rel="stylesheet" href="../../css/theme.css" />
@@ -666,12 +666,30 @@ from nlpinitiative.config import (
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">local_import_example_df</span> <span class="o">=</span> <span class="n">data_manager</span><span class="o">.</span><span class="n">import_data</span><span class="p">(</span><span class="n">import_type</span><span class="o">=</span><span class="s1">'local'</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">"C:/Users/Daniel/Downloads/dataset.csv"</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="s1">'TestDS'</span><span class="p">,</span> <span class="n">is_third_party</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">local_import_example_df</span> <span class="o">=</span> <span class="n">data_manager</span><span class="o">.</span><span class="n">import_data</span><span class="p">(</span>
+    <span class="n">import_type</span><span class="o">=</span><span class="s1">'local'</span><span class="p">,</span> 
+    <span class="n">source</span><span class="o">=</span><span class="s2">"C:/Users/Daniel/Downloads/dataset.csv"</span><span class="p">,</span> 
+    <span class="n">dataset_name</span><span class="o">=</span><span class="s1">'TestDS'</span><span class="p">,</span> 
+    <span class="n">is_third_party</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+    <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Removes unwanted dataset (used to test)</span>
 <span class="n">data_manager</span><span class="o">.</span><span class="n">remove_file</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">'dataset.csv'</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">RAW_DATA_DIR</span><span class="p">)</span>
+
 <span class="n">local_import_example_df</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-3">local_import_example_df = data_manager.import_data(import_type='local', source="C:/Users/Daniel/Downloads/dataset.csv", dataset_name='TestDS', is_third_party=False, overwrite=True)
+<div class="clipboard-copy-txt" id="cell-3">local_import_example_df = data_manager.import_data(
+    import_type='local', 
+    source="C:/Users/Daniel/Downloads/dataset.csv", 
+    dataset_name='TestDS', 
+    is_third_party=False, 
+    overwrite=True
+)
+
+# Removes unwanted dataset (used to test)
 data_manager.remove_file(filename='dataset.csv', path=RAW_DATA_DIR)
+
 local_import_example_df</div>
 </div>
 </div>
@@ -708,10 +726,22 @@ local_import_example_df</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">remote_import_example_df1</span> <span class="o">=</span> <span class="n">data_manager</span><span class="o">.</span><span class="n">import_data</span><span class="p">(</span><span class="n">import_type</span><span class="o">=</span><span class="s1">'external'</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">"https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset/blob/master/ethos/ethos_data/Ethos_Dataset_Binary.csv"</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="s1">'EthosBinDS'</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">remote_import_example_df1</span> <span class="o">=</span> <span class="n">data_manager</span><span class="o">.</span><span class="n">import_data</span><span class="p">(</span>
+    <span class="n">import_type</span><span class="o">=</span><span class="s1">'external'</span><span class="p">,</span> 
+    <span class="n">source</span><span class="o">=</span><span class="s2">"https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset/blob/master/ethos/ethos_data/Ethos_Dataset_Binary.csv"</span><span class="p">,</span> 
+    <span class="n">dataset_name</span><span class="o">=</span><span class="s1">'EthosBinDS'</span><span class="p">,</span> 
+    <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
 <span class="n">remote_import_example_df1</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-4">remote_import_example_df1 = data_manager.import_data(import_type='external', source="https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset/blob/master/ethos/ethos_data/Ethos_Dataset_Binary.csv", dataset_name='EthosBinDS', overwrite=True)
+<div class="clipboard-copy-txt" id="cell-4">remote_import_example_df1 = data_manager.import_data(
+    import_type='external', 
+    source="https://github.com/intelligence-csd-auth-gr/Ethos-Hate-Speech-Dataset/blob/master/ethos/ethos_data/Ethos_Dataset_Binary.csv", 
+    dataset_name='EthosBinDS', 
+    overwrite=True
+)
+
 remote_import_example_df1</div>
 </div>
 </div>
@@ -838,10 +868,22 @@ remote_import_example_df1</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">remote_import_example_df2</span> <span class="o">=</span> <span class="n">data_manager</span><span class="o">.</span><span class="n">import_data</span><span class="p">(</span><span class="n">import_type</span><span class="o">=</span><span class="s1">'external'</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">"https://github.com/marcoguerini/CONAN/blob/master/Multitarget-CONAN/Multitarget-CONAN.csv"</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">=</span><span class="s1">'Multitarget-CONAN-DS'</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">remote_import_example_df2</span> <span class="o">=</span> <span class="n">data_manager</span><span class="o">.</span><span class="n">import_data</span><span class="p">(</span>
+    <span class="n">import_type</span><span class="o">=</span><span class="s1">'external'</span><span class="p">,</span> 
+    <span class="n">source</span><span class="o">=</span><span class="s2">"https://github.com/marcoguerini/CONAN/blob/master/Multitarget-CONAN/Multitarget-CONAN.csv"</span><span class="p">,</span> 
+    <span class="n">dataset_name</span><span class="o">=</span><span class="s1">'Multitarget-CONAN-DS'</span><span class="p">,</span> 
+    <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
 <span class="n">remote_import_example_df2</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-5">remote_import_example_df2 = data_manager.import_data(import_type='external', source="https://github.com/marcoguerini/CONAN/blob/master/Multitarget-CONAN/Multitarget-CONAN.csv", dataset_name='Multitarget-CONAN-DS', overwrite=True)
+<div class="clipboard-copy-txt" id="cell-5">remote_import_example_df2 = data_manager.import_data(
+    import_type='external', 
+    source="https://github.com/marcoguerini/CONAN/blob/master/Multitarget-CONAN/Multitarget-CONAN.csv", 
+    dataset_name='Multitarget-CONAN-DS', 
+    overwrite=True
+)
+
 remote_import_example_df2</div>
 </div>
 </div>
@@ -1016,20 +1058,20 @@ remote_import_example_df2</div>
 </div>
 </clipboard-copy>
 </div>
-<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">files</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"marcoguerini_CONAN_Multitarget-CONAN.csv"</span>
-<span class="p">]</span>
-<span class="n">conv</span> <span class="o">=</span> <span class="s2">"mutltitarget_conan_mapping.json"</span>
+<div class="highlight-ipynb hl-python"><pre><span></span><span class="n">normalized_dataset</span> <span class="o">=</span> <span class="n">data_manager</span><span class="o">.</span><span class="n">normalize_dataset</span><span class="p">(</span>
+    <span class="n">ds_files</span><span class="o">=</span><span class="p">[</span><span class="s2">"marcoguerini_CONAN_Multitarget-CONAN.csv"</span><span class="p">],</span> 
+    <span class="n">conv_schema_fn</span><span class="o">=</span><span class="s2">"mutltitarget_conan_mapping.json"</span><span class="p">,</span> 
+    <span class="n">output_fn</span><span class="o">=</span><span class="s1">'Multitarget_CONAN_normalized'</span>
+<span class="p">)</span>
 
-<span class="n">normalized_dataset</span> <span class="o">=</span> <span class="n">data_manager</span><span class="o">.</span><span class="n">normalize_dataset</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">conv</span><span class="p">,</span> <span class="s1">'Multitarget_CONAN_normalized'</span><span class="p">)</span>
 <span class="n">normalized_dataset</span>
 </pre></div>
-<div class="clipboard-copy-txt" id="cell-6">files = [
-    "marcoguerini_CONAN_Multitarget-CONAN.csv"
-]
-conv = "mutltitarget_conan_mapping.json"
+<div class="clipboard-copy-txt" id="cell-6">normalized_dataset = data_manager.normalize_dataset(
+    ds_files=["marcoguerini_CONAN_Multitarget-CONAN.csv"], 
+    conv_schema_fn="mutltitarget_conan_mapping.json", 
+    output_fn='Multitarget_CONAN_normalized'
+)
 
-normalized_dataset = data_manager.normalize_dataset(files, conv, 'Multitarget_CONAN_normalized')
 normalized_dataset</div>
 </div>
 </div>
