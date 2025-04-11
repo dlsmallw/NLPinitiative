@@ -1,6 +1,6 @@
 site_name: NLPInitiative
 # 
-site_author: ASU Capstone Group 8 / J Healthcare Initiative
+site_author: ASU Fall-2024/Spring-2025 Capstone Group 8 with The J Healthcare Initiative
 # 
 nav:
   - About: 
@@ -22,9 +22,9 @@ theme:
 
 plugins:
 - search
+- mkdocs-jupyter
 - mkdocstrings:
     handlers:
       python:
         options:
           docstring_style: numpy
-- mkdocs-jupyter

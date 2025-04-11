@@ -30,26 +30,33 @@ For the purposes of easily building, setting up and managing the project codebas
 This script can be activated by entering `source ./setup.sh` within the bash shell while within the project source directory.
 
 #### Commands
- - `help`: Displays all of the commands that can be used.
- - `build`: This will setup a virtual environment within the project source directory and install all necessary dependencies for development.
- - `clean`: This will deactivate the virutal environment, and remove the .venv directory (uninstalling all dependencies).
- - `docs build`: Parses the docstrings in the project and generates the project documentation using mkdocs.
- - `docs serve`: Serves the mkdocs documentation to a local dev server that can be opened in a browser.
- - `docs deploy`: Deploys the mkdocs documentation to the linked GitHub repositories 'GitHub Pages'.
- - `lint`: Lints (analyzes and identifies style/format issues to correct) the project files.
- - `format`: Corrects the issues identified from running the lint command.
- - `run tests`: Runs the test suite..
- - `set bin_repo <HF Model Repository ID>`: Sets the binary model repository ID to the specified string.
-    - This is the source for downloading the model tensor file.
- - `set ml_repo <HF Model Repository ID>`: Sets the multilabel regression model repository ID to the specified string.
-    - This is the source for downloading the model tensor file.
- - `set ds_repo <HF Dataset Repository ID>`: Sets the dataset repository ID to the specified string.
-    - This is the source for downloading the datasets.
- - `set streamlit_repo <HF Spaces Streamlit App Repository ID>`: Sets the Streamlit App repo ID in the pyproject.toml file.
- - `set space_url <HF Spaces base URL>`: Sets the base URL for HF Spaces in the pyproject.toml file.
- - `set model_url <HF Model Repo base URL>`: Sets the base URL for HF Model Repos in the pyproject.toml file.
- - `set dataset_url <HF Dataset Repo base URL>`:  Sets the base URL for HF Dataset Repos in the pyproject.toml file.
- - `set hf_token <HF Token>`: Sets the HF personal token in the pyproject.toml file.
+ - `help`:  Displays all of the commands that can be used.
+ - Building/Cleaning Project Structure:
+    - `build`:  This will setup a virtual environment within the project source directory and install all necessary dependencies for development.
+    - `clean`:  This will deactivate the virutal environment, and remove the .venv directory (uninstalling all dependencies).
+ - Documentation Generation and Deployment:
+    - `docs build`:     Parses the docstrings in the project and generates the project documentation using mkdocs.
+    - `docs serve`:     Serves the mkdocs documentation to a local dev server that can be opened in a browser.
+    - `docs deploy`:    Deploys the mkdocs documentation to the linked GitHub repositories 'GitHub Pages'.
+ - Linting and Format Correction:
+    - `lint`:   Lints (analyzes and identifies style/format issues to correct) the project files.
+    - `format`: Corrects the issues identified from running the lint command.
+ - Run Commands (testing, and synching with HF hub repositories).
+    - `run tests`:      Runs the test suite.
+    - `run ds_sync`:    Syncs the dataset data.
+    - `run model_sync`: Syncs the model data.
+ - Configuration Editting:
+    - `set bin_repo <HF Model Repository ID>`:  Sets the binary model repository ID to the specified string.
+        - This is the source for downloading the model tensor file.
+    - `set ml_repo <HF Model Repository ID>`:   Sets the multilabel regression model repository ID to the specified string.
+        - This is the source for downloading the model tensor file.
+    - `set ds_repo <HF Dataset Repository ID>`: Sets the dataset repository ID to the specified string.
+        - This is the source for downloading the datasets.
+    - `set streamlit_repo <HF Spaces Streamlit App Repository ID>`: Sets the Streamlit App repo ID in the pyproject.toml file.
+    - `set space_url <HF Spaces base URL>`: Sets the base URL for HF Spaces in the pyproject.toml file.
+    - `set model_url <HF Model Repo base URL>`: Sets the base URL for HF Model Repos in the pyproject.toml file.
+    - `set dataset_url <HF Dataset Repo base URL>`:  Sets the base URL for HF Dataset Repos in the pyproject.toml file.
+    - `set hf_token <HF Token>`: Sets the HF personal token in the pyproject.toml file.
 
 ***
 
@@ -63,7 +70,9 @@ This script can be activated by entering `source ./setup.sh` within the bash she
 │   └── raw                     <- The original, raw datasets prior to normalization
 │
 ├── docs            <- A directory containing documentation used for generating and serving 
-│                      project documentation
+│   |                  project documentation
+│   └─ notebooks    <- Directory containing Jupyter notebooks detailing research, testing and 
+│                      example usage of project modules 
 │
 ├── models          <- Trained and serialized models, model predictions, or model summaries
 │   │
@@ -82,11 +91,10 @@ This script can be activated by entering `source ./setup.sh` within the bash she
 │       ├── predict.py          <- Code to run model inference with trained models          
 │       └── train.py            <- Code to train models
 │
-├── notebooks           <- Directory containing Jupyter notebooks detailing research, testing and 
-│                          example usage of project modules 
-│
 ├── references          <- Directory containing Data dictionaries, manuals, and all other 
 │                          explanatory materials
+│
+├── test                <- Directory containing unit test files
 │
 ├── LICENSE             <- Open-source license if one is chosen
 │
