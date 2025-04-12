@@ -1,5 +1,6 @@
 """This module contains the DataManager class, which is responsible for managing the data import, normalization, and preprocessing/tokenization.
-It also includes the DatasetContainer and DatasetRecordManager classes for organizing dataset information and managing dataset records, respectively."""
+It also includes the DatasetContainer and DatasetRecordManager classes for organizing dataset information and managing dataset records, respectively.
+"""
 
 import os
 import typer
@@ -27,12 +28,13 @@ from nlpinitiative.config import (
     CATEGORY_LABELS,
     DEF_MODEL,
     TEST_DATA_DIR,
-    HF_TOKEN
+    HF_TOKEN,
 )
 
 ACCEPTED_FILE_FORMATS = [".csv", ".xlsx", ".json"]
 
 app = typer.Typer()
+
 
 class DataManager:
     """A class for handling data import, normalization and preprocessing/tokenization."""
@@ -815,7 +817,8 @@ class DatasetRecordManager:  # pragma: no cover
             err_msg = f"Failed to retrieve row of Dataset Record - {e}"
             logger.error(err_msg)
             raise Exception(err_msg)
-        
+
+
 def sync_data(token: str, dest: Path = DATA_DIR):  # pragma: no cover
     """Pulls the data directory from the linked Hugging Face Dataset Repository.
 
@@ -837,9 +840,9 @@ def sync_data(token: str, dest: Path = DATA_DIR):  # pragma: no cover
         else:
             raise ValueError("No token provided. Please provide a valid Hugging Face token.")
     except Exception as e:
-        logger.error(f'Failed to pull dataset repository: {e}')
+        logger.error(f"Failed to pull dataset repository: {e}")
         raise e
-        
+
 
 def push_data(token: str, dest: Path = DATA_DIR):  # pragma: no cover
     """Pushes the data directory (all dataset information) to the linked Hugging Face Dataset Repository.
@@ -861,7 +864,7 @@ def push_data(token: str, dest: Path = DATA_DIR):  # pragma: no cover
         else:
             raise ValueError("No token provided. Please provide a valid Hugging Face token.")
     except Exception as e:
-        logger.error(f'Failed to push dataset directory: {e}')
+        logger.error(f"Failed to push dataset directory: {e}")
         raise e
 
 
@@ -876,6 +879,7 @@ def main():  # pragma: no cover
     except Exception as e:
         logger.error(f"Failed to pull dataset repository: {e}")
         raise e
+
 
 if __name__ == "__main__":  # pragma: no cover
     app()

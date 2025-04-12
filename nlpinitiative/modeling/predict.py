@@ -6,10 +6,7 @@ from nltk import sent_tokenize
 from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-from nlpinitiative.config import (
-    BIN_OUTPUT_DIR, 
-    ML_OUTPUT_DIR
-)
+from nlpinitiative.config import BIN_OUTPUT_DIR, ML_OUTPUT_DIR
 
 
 class InferenceHandler:
@@ -31,7 +28,9 @@ class InferenceHandler:
         """
 
         self.bin_tokenizer, self.bin_model = self.init_model_and_tokenizer(bin_model_path)
-        self.ml_regr_tokenizer, self.ml_regr_model = self.init_model_and_tokenizer(ml_regr_model_path)
+        self.ml_regr_tokenizer, self.ml_regr_model = self.init_model_and_tokenizer(
+            ml_regr_model_path
+        )
 
     def init_model_and_tokenizer(self, model_path: Path):
         """Initializes a model and tokenizer for use in inference using the models path.

@@ -16,14 +16,14 @@ import json
 import huggingface_hub as hfh
 
 from nlpinitiative.config import (
-    HF_TOKEN, 
-    MODELS_DIR, 
-    DEF_MODEL, 
-    CATEGORY_LABELS, 
-    BIN_REPO, 
-    ML_REPO, 
-    BIN_OUTPUT_DIR, 
-    ML_OUTPUT_DIR
+    HF_TOKEN,
+    MODELS_DIR,
+    DEF_MODEL,
+    CATEGORY_LABELS,
+    BIN_REPO,
+    ML_REPO,
+    BIN_OUTPUT_DIR,
+    ML_OUTPUT_DIR,
 )
 
 from sklearn.metrics import (
@@ -39,6 +39,8 @@ from sklearn.metrics import (
 from transformers import AutoModelForSequenceClassification, Trainer, TrainingArguments
 
 app = typer.Typer()
+
+
 class RegressionTrainer(Trainer):  # pragma: no cover
     """A custom class for overriding the compute_loss method used in regression model training."""
 
@@ -223,11 +225,11 @@ def bin_train_args(
 
     if push_to_hub:
         if hub_token is None and (HF_TOKEN is None or HF_TOKEN == ""):
-            raise ValueError(
-                "No token provided. Please provide a valid Hugging Face token."
-            )
+            raise ValueError("No token provided. Please provide a valid Hugging Face token.")
         if hub_model_id is None or hub_model_id == "":
-            raise ValueError("No model repository specified. Please provide a valid Hugging Face model repository.")
+            raise ValueError(
+                "No model repository specified. Please provide a valid Hugging Face model repository."
+            )
     else:
         hub_model_id = None
         hub_strategy = None
@@ -329,11 +331,11 @@ def ml_regr_train_args(
 
     if push_to_hub:
         if hub_token is None and (HF_TOKEN is None or HF_TOKEN == ""):
-            raise ValueError(
-                "No token provided. Please provide a valid Hugging Face token."
-            )
+            raise ValueError("No token provided. Please provide a valid Hugging Face token.")
         if hub_model_id is None or hub_model_id == "":
-            raise ValueError("No model repository specified. Please provide a valid Hugging Face model repository.")
+            raise ValueError(
+                "No model repository specified. Please provide a valid Hugging Face model repository."
+            )
     else:
         hub_model_id = None
         hub_strategy = None
@@ -397,6 +399,7 @@ def get_ml_model(model_name: str = DEF_MODEL):
     return AutoModelForSequenceClassification.from_pretrained(
         model_name, num_labels=len(CATEGORY_LABELS)
     )
+
 
 def train(bin_trainer: Trainer, ml_trainer: Trainer):  # pragma: no cover
     """Performs training on the binary classification and multilabel regression models.
@@ -467,23 +470,29 @@ def upload_best_models(token: str):  # pragma: no cover
         token=token,
     )
 
-def sync_with_model_repos(): # pragma: no cover
+
+def sync_with_model_repos():  # pragma: no cover
     """Synchronizes the model directory with the Hugging Face Model Repositories."""
 
     if HF_TOKEN is None or HF_TOKEN == "":
         raise ValueError("No token provided. Please provide a valid Hugging Face token.")
-        
+
     try:
-        hfh.snapshot_download(repo_id=BIN_REPO, repo_type="model", local_dir=BIN_OUTPUT_DIR, token=HF_TOKEN)
+        hfh.snapshot_download(
+            repo_id=BIN_REPO, repo_type="model", local_dir=BIN_OUTPUT_DIR, token=HF_TOKEN
+        )
         logger.info(f"Successfully downloaded binary classification model from {BIN_REPO}.")
     except Exception as e:
         logger.error(f"Error downloading binary classification model: {e}")
 
     try:
-        hfh.snapshot_download(repo_id=ML_REPO, repo_type="model", local_dir=ML_OUTPUT_DIR, token=HF_TOKEN)
+        hfh.snapshot_download(
+            repo_id=ML_REPO, repo_type="model", local_dir=ML_OUTPUT_DIR, token=HF_TOKEN
+        )
         logger.info(f"Successfully downloaded multilabel regression model from {ML_REPO}.")
     except Exception as e:
         logger.error(f"Error downloading multilabel regression model: {e}")
+
 
 @app.command()
 def main():  # pragma: no cover
@@ -494,6 +503,7 @@ def main():  # pragma: no cover
     except Exception as e:
         logger.error(f"Failed to sync with remote model repositories: {e}")
         raise e
+
 
 if __name__ == "__main__":  # pragma: no cover
     app()
