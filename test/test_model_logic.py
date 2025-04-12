@@ -9,7 +9,8 @@ from transformers import (
 )
 
 from nlpinitiative.config import (
-    MODELS_DIR
+    BIN_OUTPUT_DIR,
+    ML_OUTPUT_DIR
 )
 
 from nlpinitiative.modeling.predict import InferenceHandler
@@ -31,7 +32,7 @@ class TestModelLogic(unittest.TestCase):
         # Binary Model Arguments
         bin_args = bin_train_args()
         self.assertIsInstance(bin_args, TrainingArguments)
-        self.assertEqual(bin_args.output_dir, str(MODELS_DIR / "binary_classification"))
+        self.assertEqual(bin_args.output_dir, str(BIN_OUTPUT_DIR))
         self.assertEqual(bin_args.eval_strategy, "steps")
         self.assertEqual(bin_args.save_strategy, "steps")
         self.assertEqual(bin_args.logging_steps, 500)
@@ -53,7 +54,7 @@ class TestModelLogic(unittest.TestCase):
         # Multilabel Regression Model Arguments
         ml_args = ml_regr_train_args()
         self.assertIsInstance(ml_args, TrainingArguments)
-        self.assertEqual(ml_args.output_dir, str(MODELS_DIR / "multilabel_regression"))
+        self.assertEqual(ml_args.output_dir, str(ML_OUTPUT_DIR))
         self.assertEqual(ml_args.eval_strategy, "steps")
         self.assertEqual(ml_args.save_strategy, "steps")
         self.assertEqual(ml_args.logging_steps, 500)

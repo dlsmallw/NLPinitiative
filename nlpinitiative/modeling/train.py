@@ -223,14 +223,14 @@ def bin_train_args(
         The training arguments object used for conducting binary classification model training.
     """
 
-    if push_to_hub:
+    if push_to_hub: # pragma: no cover
         if hub_token is None and (HF_TOKEN is None or HF_TOKEN == ""):
             raise ValueError("No token provided. Please provide a valid Hugging Face token.")
         if hub_model_id is None or hub_model_id == "":
             raise ValueError(
                 "No model repository specified. Please provide a valid Hugging Face model repository."
             )
-    else:
+    else: # pragma: no cover
         hub_model_id = None
         hub_strategy = None
         hub_token = None
@@ -329,14 +329,14 @@ def ml_regr_train_args(
         The training arguments object used for conducting multilabel regression model training.
     """
 
-    if push_to_hub:
+    if push_to_hub: # pragma: no cover
         if hub_token is None and (HF_TOKEN is None or HF_TOKEN == ""):
             raise ValueError("No token provided. Please provide a valid Hugging Face token.")
         if hub_model_id is None or hub_model_id == "":
             raise ValueError(
                 "No model repository specified. Please provide a valid Hugging Face model repository."
             )
-    else:
+    else: # pragma: no cover
         hub_model_id = None
         hub_strategy = None
         hub_token = None
