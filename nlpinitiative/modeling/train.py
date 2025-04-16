@@ -365,7 +365,7 @@ def ml_regr_train_args(
     )
 
 
-def get_bin_model(model_name: str = DEF_MODEL):
+def get_bin_model(model_name_or_path: str | Path = DEF_MODEL):
     """Generates a model object to be trained for binary classification.
 
     Parameters
@@ -379,10 +379,10 @@ def get_bin_model(model_name: str = DEF_MODEL):
         The corresponding pretrained subclass model object for binary classification.
     """
 
-    return AutoModelForSequenceClassification.from_pretrained(model_name)
+    return AutoModelForSequenceClassification.from_pretrained(model_name_or_path)
 
 
-def get_ml_model(model_name: str = DEF_MODEL):
+def get_ml_model(model_name_or_path: str | Path = DEF_MODEL):
     """Generates a model object to be trained for multilabel regression.
 
     Parameters
@@ -397,11 +397,11 @@ def get_ml_model(model_name: str = DEF_MODEL):
     """
 
     return AutoModelForSequenceClassification.from_pretrained(
-        model_name, num_labels=len(CATEGORY_LABELS)
+        model_name_or_path, num_labels=len(CATEGORY_LABELS)
     )
 
 
-def train(bin_trainer: Trainer, ml_trainer: Trainer):  # pragma: no cover
+def train(bin_trainer: Trainer | None, ml_trainer: Trainer | None):  # pragma: no cover
     """Performs training on the binary classification and multilabel regression models.
 
     Parameters
@@ -416,11 +416,18 @@ def train(bin_trainer: Trainer, ml_trainer: Trainer):  # pragma: no cover
     tuple[dict[str, float], dict[str, float]]
         A tuple consisting of the dicts containing the metrics evaluation results for the binary classification and multilabel regression model training.
     """
+    bin_eval = None
+    ml_eval = None
 
-    bin_trainer.train()
-    ml_trainer.train()
-    bin_eval = bin_trainer.evaluate()
-    ml_eval = ml_trainer.evaluate()
+    if bin_trainer is not None:
+        bin_trainer.train()
+        bin_eval = bin_trainer.evaluate()
+        bin_trainer.save_metrics(split="all", metrics=bin_eval)
+
+    if ml_trainer is not None:
+        ml_trainer.train()
+        ml_eval = ml_trainer.evaluate()
+        ml_trainer.save_metrics(split="all", metrics=ml_eval)
 
     return bin_eval, ml_eval
 
