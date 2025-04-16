@@ -485,18 +485,20 @@ def sync_with_model_repos():  # pragma: no cover
         raise ValueError("No token provided. Please provide a valid Hugging Face token.")
 
     try:
+        logger.info("Beginning synchronization with binary model repository. This may take a few minutes...")
         hfh.snapshot_download(
             repo_id=BIN_REPO, repo_type="model", local_dir=BIN_OUTPUT_DIR, token=HF_TOKEN
         )
-        logger.info(f"Successfully downloaded binary classification model from {BIN_REPO}.")
+        logger.success(f"Successfully downloaded binary classification model from {BIN_REPO}.")
     except Exception as e:
         logger.error(f"Error downloading binary classification model: {e}")
 
     try:
+        logger.info("Beginning synchronization with multilabel model repository. This may take a few minutes...")
         hfh.snapshot_download(
             repo_id=ML_REPO, repo_type="model", local_dir=ML_OUTPUT_DIR, token=HF_TOKEN
         )
-        logger.info(f"Successfully downloaded multilabel regression model from {ML_REPO}.")
+        logger.success(f"Successfully downloaded multilabel regression model from {ML_REPO}.")
     except Exception as e:
         logger.error(f"Error downloading multilabel regression model: {e}")
 
