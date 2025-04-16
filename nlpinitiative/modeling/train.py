@@ -157,7 +157,7 @@ def bin_train_args(
     output_dir: Path = BIN_OUTPUT_DIR,
     hub_model_id: str = BIN_REPO,
     push_to_hub: bool = True,
-    hub_strategy: str = "all_checkpoints",
+    hub_strategy: str = "end",
     hub_token: str = None,
     eval_strat: str = "steps",
     save_strat: str = "steps",
@@ -185,7 +185,7 @@ def bin_train_args(
     push_to_hub : bool, optional
         True if the model should be pushed to the Hugging Face Model Hub, False otherwise (default is True).
     hub_strategy : str, optional
-        The strategy for pushing the model to the Hugging Face Model Hub (default is 'all_checkpoints').
+        The strategy for pushing the model to the Hugging Face Model Hub (default is 'end').
     hub_token : str, optional
         A Hugging Face token with read/write access privileges to allow exporting the trained model (default is None).
     eval_strat : str, optional
@@ -263,7 +263,7 @@ def ml_regr_train_args(
     output_dir: Path = ML_OUTPUT_DIR,
     hub_model_id: str = ML_REPO,
     push_to_hub: bool = True,
-    hub_strategy: str = "all_checkpoints",
+    hub_strategy: str = "end",
     hub_token: str = None,
     eval_strat: str = "steps",
     save_strat: str = "steps",
@@ -291,7 +291,7 @@ def ml_regr_train_args(
     push_to_hub : bool, optional
         True if the model should be pushed to the Hugging Face Model Hub, False otherwise (default is True).
     hub_strategy : str, optional
-        The strategy for pushing the model to the Hugging Face Model Hub (default is 'all_checkpoints').
+        The strategy for pushing the model to the Hugging Face Model Hub (default is 'end').
     hub_token : str, optional
         A Hugging Face token with read/write access privileges to allow exporting the trained model (default is None).
     eval_strat : str, optional
