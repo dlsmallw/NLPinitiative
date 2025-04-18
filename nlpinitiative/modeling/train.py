@@ -223,14 +223,14 @@ def bin_train_args(
         The training arguments object used for conducting binary classification model training.
     """
 
-    if push_to_hub: # pragma: no cover
+    if push_to_hub:  # pragma: no cover
         if hub_token is None and (HF_TOKEN is None or HF_TOKEN == ""):
             raise ValueError("No token provided. Please provide a valid Hugging Face token.")
         if hub_model_id is None or hub_model_id == "":
             raise ValueError(
                 "No model repository specified. Please provide a valid Hugging Face model repository."
             )
-    else: # pragma: no cover
+    else:  # pragma: no cover
         hub_model_id = None
         hub_strategy = None
         hub_token = None
@@ -329,14 +329,14 @@ def ml_regr_train_args(
         The training arguments object used for conducting multilabel regression model training.
     """
 
-    if push_to_hub: # pragma: no cover
+    if push_to_hub:  # pragma: no cover
         if hub_token is None and (HF_TOKEN is None or HF_TOKEN == ""):
             raise ValueError("No token provided. Please provide a valid Hugging Face token.")
         if hub_model_id is None or hub_model_id == "":
             raise ValueError(
                 "No model repository specified. Please provide a valid Hugging Face model repository."
             )
-    else: # pragma: no cover
+    else:  # pragma: no cover
         hub_model_id = None
         hub_strategy = None
         hub_token = None
@@ -485,7 +485,9 @@ def sync_with_model_repos():  # pragma: no cover
         raise ValueError("No token provided. Please provide a valid Hugging Face token.")
 
     try:
-        logger.info("Beginning synchronization with binary model repository. This may take a few minutes...")
+        logger.info(
+            "Beginning synchronization with binary model repository. This may take a few minutes..."
+        )
         hfh.snapshot_download(
             repo_id=BIN_REPO, repo_type="model", local_dir=BIN_OUTPUT_DIR, token=HF_TOKEN
         )
@@ -494,7 +496,9 @@ def sync_with_model_repos():  # pragma: no cover
         logger.error(f"Error downloading binary classification model: {e}")
 
     try:
-        logger.info("Beginning synchronization with multilabel model repository. This may take a few minutes...")
+        logger.info(
+            "Beginning synchronization with multilabel model repository. This may take a few minutes..."
+        )
         hfh.snapshot_download(
             repo_id=ML_REPO, repo_type="model", local_dir=ML_OUTPUT_DIR, token=HF_TOKEN
         )
