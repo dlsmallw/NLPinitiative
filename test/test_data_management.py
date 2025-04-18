@@ -95,17 +95,21 @@ class TestDataManager(unittest.TestCase):
 
     def tearDown(self):
         """Clean up the test case by removing generated files."""
-        self.dm.remove_file(filename="test_data1.csv", path=TEST_DATA_DIR)
-        self.dm.remove_file(filename="test_data_semicolon_delimiter.csv", path=TEST_DATA_DIR)
-        self.dm.remove_file(filename="test_data1.json", path=TEST_DATA_DIR)
-        self.dm.remove_file(filename="test_data1.xlsx", path=TEST_DATA_DIR)
-        self.dm.remove_file(filename="test_data2.csv", path=TEST_DATA_DIR)
-        self.dm.remove_file(filename="test_data3.csv", path=TEST_DATA_DIR)
-        self.dm.remove_file(filename="test_norm_schema1.json", path=TEST_DATA_DIR)
-        self.dm.remove_file(filename="test_norm_schema2.json", path=TEST_DATA_DIR)
+        for f in os.listdir(TEST_DATA_DIR):
+            if not os.path.isdir(f):
+                self.dm.remove_file(filename=f, path=TEST_DATA_DIR)
+        # self.dm.remove_file(filename="test_data1.csv", path=TEST_DATA_DIR)
+        # self.dm.remove_file(filename="test_data_semicolon_delimiter.csv", path=TEST_DATA_DIR)
+        # self.dm.remove_file(filename="test_data1.json", path=TEST_DATA_DIR)
+        # self.dm.remove_file(filename="test_data1.xlsx", path=TEST_DATA_DIR)
+        # self.dm.remove_file(filename="test_data2.csv", path=TEST_DATA_DIR)
+        # self.dm.remove_file(filename="test_data3.csv", path=TEST_DATA_DIR)
+        # self.dm.remove_file(filename="test_norm_schema1.json", path=TEST_DATA_DIR)
+        # self.dm.remove_file(filename="test_norm_schema2.json", path=TEST_DATA_DIR)
 
         for f in os.listdir(TEST_DATA_DIR / "output"):
-            self.dm.remove_file(filename=f, path=TEST_DATA_DIR / "output")
+            if f != ".gitkeep":
+                self.dm.remove_file(filename=f, path=TEST_DATA_DIR / "output")
 
     def test_url_validation(self):
         """Test the URL validation function."""
