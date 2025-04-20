@@ -491,7 +491,7 @@ def upload_best_models(token: str = None):  # pragma: no cover
         """
 
         return AutoModelForSequenceClassification.from_pretrained(model_path)
-    
+
     if token is None and (HF_TOKEN is None or HF_TOKEN == ""):
         if HF_TOKEN is not None and HF_TOKEN != "":
             token = HF_TOKEN
