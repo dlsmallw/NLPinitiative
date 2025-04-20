@@ -401,6 +401,52 @@ def get_ml_model(model_name_or_path: str | Path = DEF_MODEL):
     )
 
 
+def train_binary_model(bin_trainer: Trainer):  # pragma: no cover
+    """Performs training on the binary classification model.
+
+    Parameters
+    ----------
+    bin_trainer : Trainer
+        The trainer object for performing binary classification model training.
+
+    Returns
+    -------
+    dict[str, float]
+        A dict containing the metrics evaluation results for the binary classification model training.
+    """
+    bin_eval = None
+
+    if bin_trainer is not None:
+        bin_trainer.train()
+        bin_eval = bin_trainer.evaluate()
+        bin_trainer.save_metrics(split="all", metrics=bin_eval)
+
+    return bin_eval
+
+
+def train_multilabel_model(ml_trainer: Trainer):  # pragma: no cover
+    """Performs training on the multilabel regression model.
+
+    Parameters
+    ----------
+    ml_trainer : Trainer
+        The trainer object for performing multilabel regression model training.
+
+    Returns
+    -------
+    dict[str, float]
+        A dict containing the metrics evaluation results for the multilabel regression model training.
+    """
+    ml_eval = None
+
+    if ml_trainer is not None:
+        ml_trainer.train()
+        ml_eval = ml_trainer.evaluate()
+        ml_trainer.save_metrics(split="all", metrics=ml_eval)
+
+    return ml_eval
+
+
 def train(bin_trainer: Trainer | None, ml_trainer: Trainer | None):  # pragma: no cover
     """Performs training on the binary classification and multilabel regression models.
 
@@ -416,23 +462,12 @@ def train(bin_trainer: Trainer | None, ml_trainer: Trainer | None):  # pragma: n
     tuple[dict[str, float], dict[str, float]]
         A tuple consisting of the dicts containing the metrics evaluation results for the binary classification and multilabel regression model training.
     """
-    bin_eval = None
-    ml_eval = None
-
-    if bin_trainer is not None:
-        bin_trainer.train()
-        bin_eval = bin_trainer.evaluate()
-        bin_trainer.save_metrics(split="all", metrics=bin_eval)
-
-    if ml_trainer is not None:
-        ml_trainer.train()
-        ml_eval = ml_trainer.evaluate()
-        ml_trainer.save_metrics(split="all", metrics=ml_eval)
-
+    bin_eval = train_binary_model(bin_trainer=bin_trainer)
+    ml_eval = train_multilabel_model(ml_trainer=ml_trainer)
     return bin_eval, ml_eval
 
 
-def upload_best_models(token: str):  # pragma: no cover
+def upload_best_models(token: str = None):  # pragma: no cover
     """Pushes the current best performing binary classification and multilabel regression models to their respective linked Hugging Face Model Repositories.
 
     Parameters
@@ -441,7 +476,7 @@ def upload_best_models(token: str):  # pragma: no cover
         A Hugging Face token with read/write access privileges to allow exporting the trained models (default is None).
     """
 
-    def load_model(path: Path):
+    def load_model(model_path: Path):
         """Initializes a PreTrainedModel object from the specified model path.
 
         Parameters
@@ -454,28 +489,20 @@ def upload_best_models(token: str):  # pragma: no cover
         PreTrainedModel
             An instantiated PreTrainedModel object.
         """
-        with open(path / "config.json") as config_file:
-            config_json = json.load(config_file)
-        model_type = config_json["model_type"]
-        return AutoModelForSequenceClassification.from_pretrained(path, model_type=model_type)
 
-    bin_model = load_model(MODELS_DIR / "binary_classification/best_model")
-    ml_model = load_model(MODELS_DIR / "multilabel_regression/best_model")
+        return AutoModelForSequenceClassification.from_pretrained(model_path)
+    
+    if token is None and (HF_TOKEN is None or HF_TOKEN == ""):
+        if HF_TOKEN is not None and HF_TOKEN != "":
+            token = HF_TOKEN
+        else:
+            raise ValueError("No token provided. Please provide a valid Hugging Face token.")
+
+    bin_model = load_model(BIN_OUTPUT_DIR)
+    ml_model = load_model(ML_OUTPUT_DIR)
 
     bin_model.push_to_hub(BIN_REPO, token=token)
-    hfh.upload_file(
-        path_or_fileobj=MODELS_DIR / "binary_classification/best_model/config.json",
-        path_in_repo="config.json",
-        repo_id=BIN_REPO,
-        token=token,
-    )
     ml_model.push_to_hub(ML_REPO, token=token)
-    hfh.upload_file(
-        path_or_fileobj=MODELS_DIR / "multilabel_regression/best_model/config.json",
-        path_in_repo="config.json",
-        repo_id=ML_REPO,
-        token=token,
-    )
 
 
 def sync_with_model_repos():  # pragma: no cover
