@@ -247,7 +247,7 @@ def bin_train_args(
                 params["push_to_hub"] = push_to_hub
                 params["hub_strategy"] = hub_strategy
                 params["hub_token"] = hub_token
-        
+
     return TrainingArguments(**params)
 
 
@@ -352,7 +352,7 @@ def ml_regr_train_args(
                 params["push_to_hub"] = push_to_hub
                 params["hub_strategy"] = hub_strategy
                 params["hub_token"] = hub_token
-        
+
     return TrainingArguments(**params)
 
 
