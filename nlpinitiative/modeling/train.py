@@ -1,23 +1,16 @@
 """This module contains the training logic for the binary classification and multilabel regression models."""
 
-import os
 import typer
-import validators
+import torch
+import numpy as np
 import huggingface_hub as hfh
-
 
 from pathlib import Path
 from loguru import logger
 from scipy.stats import pearsonr
-import numpy as np
-import torch
-import json
-
-import huggingface_hub as hfh
 
 from nlpinitiative.config import (
     HF_TOKEN,
-    MODELS_DIR,
     DEF_MODEL,
     CATEGORY_LABELS,
     BIN_REPO,
@@ -159,17 +152,17 @@ def bin_train_args(
     push_to_hub: bool = True,
     hub_strategy: str = "end",
     hub_token: str = None,
-    eval_strat: str = "steps",
-    save_strat: str = "steps",
+    eval_strategy: str = "steps",
+    save_strategy: str = "steps",
     logging_steps: int = 500,
     save_steps: int = 500,
-    learn_rate: float = 2e-5,
+    learning_rate: float = 2e-5,
     batch_sz: int = 8,
     num_train_epochs: int = 3,
     weight_decay: float = 0.01,
-    best_model_at_end: bool = True,
-    best_model_metric: str = "f1",
-    greater_better: bool = True,
+    load_best_model_at_end: bool = True,
+    metric_for_best_model: str = "f1",
+    greater_is_better: bool = True,
     overwrite_output_dir: bool = True,
     save_on_each_node: bool = True,
     save_total_limit: int = 5,
@@ -188,15 +181,15 @@ def bin_train_args(
         The strategy for pushing the model to the Hugging Face Model Hub (default is 'end').
     hub_token : str, optional
         A Hugging Face token with read/write access privileges to allow exporting the trained model (default is None).
-    eval_strat : str, optional
+    eval_strategy : str, optional
         The evaluation strategy (default is 'steps').
-    save_strat : str, optional
+    save_strategy : str, optional
         The save strategy (default is 'steps').
     logging_steps : int, optional
         The periodicity for which logging will occur (default is 500).
     save_steps : int, optional
         The step periodicity for which a model will be saved (default is 500).
-    learn_rate : float, optional
+    learning_rate : float, optional
         A hyper parameter for determining model parameter adjustment during training (default is 2e-5).
     batch_sz : int, optional
         The training data batch sizes (default is 8).
@@ -204,11 +197,11 @@ def bin_train_args(
         The number of training epochs to be performed (default is 3).
     weight_decay : float, optional
         The weight decay to apply (default is 0.01).
-    best_model_at_end : bool, optional
+    load_best_model_at_end : bool, optional
         True if the best model is to be saved at the completion of model training, False otherwise (default is True).
-    best_model_metric : str, optional
+    metric_for_best_model : str, optional
         The metric used for determining the best performing model (default is 'f1').
-    greater_better : bool, optional
+    greater_is_better : bool, optional
         True for if the better performing model should have the greater value (based on the specified metric), False otherwise (default is True).
     overwrite_output_dir : bool, optional
         True if the output directory should be overwritten, False otherwise (default is True).
@@ -223,40 +216,39 @@ def bin_train_args(
         The training arguments object used for conducting binary classification model training.
     """
 
-    if push_to_hub:  # pragma: no cover
-        if hub_token is None and (HF_TOKEN is None or HF_TOKEN == ""):
-            raise ValueError("No token provided. Please provide a valid Hugging Face token.")
-        if hub_model_id is None or hub_model_id == "":
-            raise ValueError(
-                "No model repository specified. Please provide a valid Hugging Face model repository."
-            )
-    else:  # pragma: no cover
-        hub_model_id = None
-        hub_strategy = None
-        hub_token = None
+    params = {
+        "output_dir": output_dir,
+        "eval_strategy": eval_strategy,
+        "save_strategy": save_strategy,
+        "logging_steps": logging_steps,
+        "save_steps": save_steps,
+        "learning_rate": learning_rate,
+        "per_device_train_batch_size": batch_sz,
+        "per_device_eval_batch_size": batch_sz,
+        "num_train_epochs": num_train_epochs,
+        "weight_decay": weight_decay,
+        "load_best_model_at_end": load_best_model_at_end,
+        "metric_for_best_model": metric_for_best_model,
+        "greater_is_better": greater_is_better,
+        "overwrite_output_dir": overwrite_output_dir,
+        "save_on_each_node": save_on_each_node,
+        "save_total_limit": save_total_limit,
+    }
 
-    return TrainingArguments(
-        output_dir=output_dir,
-        hub_model_id=hub_model_id,
-        push_to_hub=push_to_hub,
-        hub_strategy=hub_strategy,
-        hub_token=hub_token,
-        eval_strategy=eval_strat,
-        save_strategy=save_strat,
-        logging_steps=logging_steps,
-        save_steps=save_steps,
-        learning_rate=learn_rate,
-        per_device_train_batch_size=batch_sz,
-        per_device_eval_batch_size=batch_sz,
-        num_train_epochs=num_train_epochs,
-        weight_decay=weight_decay,
-        load_best_model_at_end=best_model_at_end,
-        metric_for_best_model=best_model_metric,
-        greater_is_better=greater_better,
-        overwrite_output_dir=overwrite_output_dir,
-        save_on_each_node=save_on_each_node,
-        save_total_limit=save_total_limit,
-    )
+    if push_to_hub:  # pragma: no cover
+        if hub_model_id is not None and hub_strategy is not None:
+            if hub_token is None and (HF_TOKEN is None or HF_TOKEN == ""):
+                logger.error("No token provided. Please provide a valid Hugging Face token.")
+            else:
+                if hub_token is None:
+                    hub_token = HF_TOKEN
+
+                params["hub_model_id"] = hub_model_id
+                params["push_to_hub"] = push_to_hub
+                params["hub_strategy"] = hub_strategy
+                params["hub_token"] = hub_token
+        
+    return TrainingArguments(**params)
 
 
 def ml_regr_train_args(
@@ -265,17 +257,17 @@ def ml_regr_train_args(
     push_to_hub: bool = True,
     hub_strategy: str = "end",
     hub_token: str = None,
-    eval_strat: str = "steps",
-    save_strat: str = "steps",
+    eval_strategy: str = "steps",
+    save_strategy: str = "steps",
     logging_steps: int = 500,
     save_steps: int = 500,
-    learn_rate: float = 2e-5,
+    learning_rate: float = 2e-5,
     batch_sz: int = 8,
     num_train_epochs: int = 3,
     weight_decay: float = 0.01,
-    best_model_at_end: bool = True,
-    best_model_metric: str = "eval_mean_rmse",
-    greater_better: bool = False,
+    load_best_model_at_end: bool = True,
+    metric_for_best_model: str = "eval_mean_rmse",
+    greater_is_better: bool = False,
     overwrite_output_dir: bool = True,
     save_on_each_node: bool = True,
     save_total_limit: int = 5,
@@ -294,15 +286,15 @@ def ml_regr_train_args(
         The strategy for pushing the model to the Hugging Face Model Hub (default is 'end').
     hub_token : str, optional
         A Hugging Face token with read/write access privileges to allow exporting the trained model (default is None).
-    eval_strat : str, optional
+    eval_strategy : str, optional
         The evaluation strategy (default is 'steps').
-    save_strat : str, optional
+    save_strategy : str, optional
         The save strategy (default is 'steps').
     logging_steps : int, optional
         The periodicity for which logging will occur (default is 500).
     save_steps : int, optional
         The step periodicity for which a model will be saved (default is 500).
-    learn_rate : float, optional
+    learning_rate : float, optional
         A hyper parameter for determining model parameter adjustment during training (default is 2e-5).
     batch_sz : int, optional
         The training data batch sizes (default is 8).
@@ -310,11 +302,11 @@ def ml_regr_train_args(
         The number of training epochs to be performed (default is 3).
     weight_decay : float, optional
         The weight decay to apply (default is 0.01).
-    best_model_at_end : bool, optional
+    load_best_model_at_end : bool, optional
         True if the best model is to be saved at the completion of model training, False otherwise (default is True).
-    best_model_metric : str, optional
+    metric_for_best_model : str, optional
         The metric used for determining the best performing model (default is 'eval_mean_rmse').
-    greater_better : bool, optional
+    greater_is_better : bool, optional
         True for if the better performing model should have the greater value (based on the specified metric), False otherwise (default is False).
     overwrite_output_dir : bool, optional
         True if the output directory should be overwritten, False otherwise (default is True).
@@ -329,40 +321,39 @@ def ml_regr_train_args(
         The training arguments object used for conducting multilabel regression model training.
     """
 
-    if push_to_hub:  # pragma: no cover
-        if hub_token is None and (HF_TOKEN is None or HF_TOKEN == ""):
-            raise ValueError("No token provided. Please provide a valid Hugging Face token.")
-        if hub_model_id is None or hub_model_id == "":
-            raise ValueError(
-                "No model repository specified. Please provide a valid Hugging Face model repository."
-            )
-    else:  # pragma: no cover
-        hub_model_id = None
-        hub_strategy = None
-        hub_token = None
+    params = {
+        "output_dir": output_dir,
+        "eval_strategy": eval_strategy,
+        "save_strategy": save_strategy,
+        "logging_steps": logging_steps,
+        "save_steps": save_steps,
+        "learning_rate": learning_rate,
+        "per_device_train_batch_size": batch_sz,
+        "per_device_eval_batch_size": batch_sz,
+        "num_train_epochs": num_train_epochs,
+        "weight_decay": weight_decay,
+        "load_best_model_at_end": load_best_model_at_end,
+        "metric_for_best_model": metric_for_best_model,
+        "greater_is_better": greater_is_better,
+        "overwrite_output_dir": overwrite_output_dir,
+        "save_on_each_node": save_on_each_node,
+        "save_total_limit": save_total_limit,
+    }
 
-    return TrainingArguments(
-        output_dir=output_dir,
-        hub_model_id=hub_model_id,
-        push_to_hub=push_to_hub,
-        hub_strategy=hub_strategy,
-        hub_token=hub_token,
-        eval_strategy=eval_strat,
-        save_strategy=save_strat,
-        logging_steps=logging_steps,
-        save_steps=save_steps,
-        learning_rate=learn_rate,
-        per_device_train_batch_size=batch_sz,
-        per_device_eval_batch_size=batch_sz,
-        num_train_epochs=num_train_epochs,
-        weight_decay=weight_decay,
-        load_best_model_at_end=best_model_at_end,
-        metric_for_best_model=best_model_metric,
-        greater_is_better=greater_better,
-        overwrite_output_dir=overwrite_output_dir,
-        save_on_each_node=save_on_each_node,
-        save_total_limit=save_total_limit,
-    )
+    if push_to_hub:  # pragma: no cover
+        if hub_model_id is not None and hub_strategy is not None:
+            if hub_token is None and (HF_TOKEN is None or HF_TOKEN == ""):
+                logger.error("No token provided. Please provide a valid Hugging Face token.")
+            else:
+                if hub_token is None:
+                    hub_token = HF_TOKEN
+
+                params["hub_model_id"] = hub_model_id
+                params["push_to_hub"] = push_to_hub
+                params["hub_strategy"] = hub_strategy
+                params["hub_token"] = hub_token
+        
+    return TrainingArguments(**params)
 
 
 def get_bin_model(model_name_or_path: str | Path = DEF_MODEL):
